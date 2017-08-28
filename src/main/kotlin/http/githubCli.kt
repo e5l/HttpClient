@@ -1,6 +1,7 @@
 package http
 
 import http.backend.jvm.ApacheBackend
+import http.features.Https
 import http.features.PathRequest
 import http.features.PlainText
 import http.features.install
@@ -12,11 +13,12 @@ fun main(args: Array<String>) {
     }
 
     httpClient.session {
-        val google = connect("google.com") {
+        val github = connect("api.github.com") {
             install(PlainText)
+            install(Https)
         }
 
-        val response = google.get("")
+        val response = github.get("repos/jetbrains/kotlin")
         println(response.asExpected<String>())
     }
 }
