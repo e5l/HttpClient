@@ -2,7 +2,7 @@ package http
 
 import http.backend.HttpRequestDataBuilder
 import http.backend.HttpResponseData
-import http.backend.forceHttpResponseData
+import http.backend.execute
 import http.request.BaseHttpRequest
 import http.request.HttpRequest
 import http.request.HttpRequestPipeline
@@ -40,5 +40,5 @@ suspend fun HttpClientScope.call(block: HttpRequestDataBuilder.() -> Unit): Http
             request
     )
 
-    return forceHttpResponseData(call)
+    return execute(call)
 }

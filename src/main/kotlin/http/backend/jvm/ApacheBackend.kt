@@ -3,6 +3,7 @@ package http.backend.jvm
 import http.backend.HttpBackend
 import http.backend.HttpRequestData
 import http.backend.HttpResponseData
+import http.backend.HttpResponseDataBuilder
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import org.apache.http.HttpResponse
 import org.apache.http.concurrent.FutureCallback
@@ -46,9 +47,16 @@ class ApacheBackend : HttpBackend {
         }
 
         // blocking
-        val code = HttpStatusCode.fromValue(response.statusLine.statusCode)
-        val body = EntityUtils.toString(response.entity)
-        return HttpResponseData(code, body)
+        response.allHeaders
+        return HttpResponseDataBuilder().apply {
+            statusCode = HttpStatusCode.fromValue(response.statusLine.statusCode)
+            body = response.entity.content
+            reason = response.statusLine.reasonPhrase
+
+            headers {
+                response.allHeaders.forEach { append(it.name, it.value) }
+            }
+        }.build()
     }
 
     override fun close() {
