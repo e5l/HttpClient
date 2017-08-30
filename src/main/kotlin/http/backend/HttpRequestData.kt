@@ -1,31 +1,39 @@
 package http.backend
 
 import org.jetbrains.ktor.http.HttpMethod
+import org.jetbrains.ktor.util.URLBuilder
+import org.jetbrains.ktor.util.URLProtocol
 import org.jetbrains.ktor.util.ValuesMap
+import org.jetbrains.ktor.util.ValuesMapBuilder
 
-class HttpScheme(val value: String) {
-    companion object {
-        val Http = HttpScheme("http")
-        val Https = HttpScheme("https")
-    }
+interface HttpRequestData {
+    val protocol: URLProtocol
+    val method: HttpMethod
+    val url: String
+    val headers: ValuesMap
 }
 
-class HttpRequestData(
-        val scheme: HttpScheme,
-        val method: HttpMethod,
-        val url: String,
-        val path: String,
-        val headers: ValuesMap,
-        val port: Short
-) {
-    class Builder {
-        var scheme: HttpScheme = HttpScheme.Http
-        var method: HttpMethod = HttpMethod.Get
-        lateinit var url: String
-        var path: String = ""
-        var headers = ValuesMap.Empty
-        var port: Short = 80
+class HttpRequestDataBuilder {
+    var protocol = URLProtocol.HTTP
+    var method = HttpMethod.Get
 
-        fun build() =  HttpRequestData(scheme, method, url, path, headers, port)
+    private val urlBuilder = URLBuilder()
+    private val headersBuilder = ValuesMapBuilder()
+
+    var body: Any = ""
+
+    fun url(block: URLBuilder.() -> Unit) {
+        urlBuilder.apply(block)
+    }
+
+    fun headers(block: ValuesMapBuilder.() -> Unit) {
+        headersBuilder.apply(block)
+    }
+
+    fun build() =  object : HttpRequestData {
+        override val protocol: URLProtocol = this@HttpRequestDataBuilder.protocol
+        override val method: HttpMethod = this@HttpRequestDataBuilder.method
+        override val url: String = urlBuilder.build()
+        override val headers: ValuesMap = headersBuilder.build()
     }
 }

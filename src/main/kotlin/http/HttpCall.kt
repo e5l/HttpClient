@@ -1,5 +1,8 @@
 package http
 
+import http.backend.HttpRequestDataBuilder
+import http.backend.HttpResponseData
+import http.backend.forceHttpResponseData
 import http.request.BaseHttpRequest
 import http.request.HttpRequest
 import http.request.HttpRequestPipeline
@@ -20,4 +23,22 @@ class BaseHttpCall(
 ) : HttpCall {
     override val request = BaseHttpRequest(this, requestPipeline)
     override val response = BaseHttpResponse(this, responsePipeline)
+}
+
+class CallScope(override val parent: HttpClientScope) : HttpClientScope {
+    override val requestPipeline = HttpRequestPipeline()
+    override val responsePipeline = HttpResponsePipeline()
+}
+
+suspend fun HttpClientScope.call(block: HttpRequestDataBuilder.() -> Unit): HttpResponseData {
+    val scope = CallScope(this)
+    val request = HttpRequestDataBuilder().apply(block).build()
+
+    val call = BaseHttpCall(
+            scope.buildRequestPipeline(),
+            scope.buildResponsePipeline(),
+            request
+    )
+
+    return forceHttpResponseData(call)
 }

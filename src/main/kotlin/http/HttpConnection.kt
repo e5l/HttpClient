@@ -1,20 +1,20 @@
 package http
 
-import http.backend.HttpRequestData
+import http.backend.HttpRequestDataBuilder
 import http.request.HttpRequestPipeline
-import http.features.PathRequest
 import http.response.HttpResponse
 import http.response.HttpResponsePipeline
 
-class HttpConnection(val session: HttpClientSession, resource: String) : HttpClientScope {
-    override val parent: HttpClientScope = session
+class HttpConnection(override val parent: HttpClientScope, resource: String) : HttpClientScope {
     override val requestPipeline = HttpRequestPipeline()
     override val responsePipeline = HttpResponsePipeline()
 
     init {
         requestPipeline.intercept(HttpRequestPipeline.Address) { request ->
-            if (request is HttpRequestData.Builder) {
-                request.url = resource
+            if (request is HttpRequestDataBuilder) {
+                request.url {
+                    host = resource
+                }
             }
         }
     }
@@ -26,14 +26,4 @@ class HttpConnection(val session: HttpClientSession, resource: String) : HttpCli
 
         return call.response
     }
-
-    private fun buildResponsePipeline(): HttpResponsePipeline = HttpResponsePipeline().apply {
-        visit(after = { merge(it.responsePipeline) })
-    }
-
-    private fun buildRequestPipeline(): HttpRequestPipeline = HttpRequestPipeline().apply {
-        visit(after = { merge(it.requestPipeline) })
-    }
 }
-
-suspend fun HttpConnection.get(path: String): HttpResponse = request(PathRequest(path))

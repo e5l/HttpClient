@@ -28,3 +28,11 @@ fun HttpClientScope.visit(
     parent.visit(before, after)
     after(this)
 }
+
+fun HttpClientScope.buildResponsePipeline(): HttpResponsePipeline = HttpResponsePipeline().apply {
+    visit(after = { merge(it.responsePipeline) })
+}
+
+fun HttpClientScope.buildRequestPipeline(): HttpRequestPipeline = HttpRequestPipeline().apply {
+    visit(after = { merge(it.requestPipeline) })
+}

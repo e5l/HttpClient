@@ -8,11 +8,13 @@ interface HttpResponse {
     val pipeline: HttpResponsePipeline
 }
 
-class BaseHttpResponse(override val call: HttpCall, override val pipeline: HttpResponsePipeline) : HttpResponse
+class BaseHttpResponse(override val call: HttpCall, override val pipeline: HttpResponsePipeline) : HttpResponse {
+}
 
-suspend fun HttpCall.makeResponse(container: ResponseContainer) = response.pipeline.execute(this, container)
+inline suspend fun <reified T> HttpCall.makeResponse(rawResponse: Any): ResponseContainer
+        = response.pipeline.execute(this, ResponseContainer(T::class, rawResponse))
 
 inline suspend fun <reified T> HttpResponse.asExpected(): T {
-    val response = call.makeResponse(ResponseContainer(T::class, call.makeRequest()))
+    val response = call.makeResponse<T>(call.makeRequest())
     return response.value as? T ?: error("Invalid type: $response")
 }
