@@ -1,9 +1,11 @@
 package http.examples
 
 import http.HttpClient
-import http.backend.HttpResponseData
+import http.response.HttpResponseData
 import http.backend.jvm.ApacheBackend
 import http.call
+import http.response.EmptyBody
+import http.response.StreamBody
 import kotlinx.coroutines.experimental.runBlocking
 import org.jetbrains.ktor.http.ContentType
 import org.jetbrains.ktor.http.HttpHeaders
@@ -22,8 +24,13 @@ val HttpResponseData.charset: Charset
             ?.let { Charset.forName(it[1]) }
             ?: Charset.defaultCharset()
 
-val HttpResponseData.bodyRawText: String
-    get() = InputStreamReader(body, charset).readText()
+fun HttpResponseData.bodyRawText(): String {
+    val responseBody = body
+    return when (responseBody) {
+        is StreamBody -> InputStreamReader(responseBody.stream, charset).readText()
+        is EmptyBody -> ""
+    }
+}
 
 suspend fun full(client: HttpClient) {
     val searchResults = client.call {
@@ -38,7 +45,7 @@ suspend fun full(client: HttpClient) {
         }
     }
 
-    println("${searchResults.statusCode} ${searchResults.bodyRawText}")
+    println("${searchResults.statusCode} ${searchResults.bodyRawText()}")
 
     val redditFrontJson = client.call {
         url {
@@ -56,7 +63,7 @@ suspend fun full(client: HttpClient) {
         }
     }
 
-    println(redditFrontJson.bodyRawText)
+    println(redditFrontJson.bodyRawText())
 }
 
 fun main(args: Array<String>) {

@@ -1,7 +1,7 @@
 package http.features
 
 import http.HttpClientScope
-import http.backend.HttpResponseData
+import http.response.HttpResponseData
 import http.response.HttpResponsePipeline
 import http.response.ResponseContainer
 import org.jetbrains.ktor.util.AttributeKey

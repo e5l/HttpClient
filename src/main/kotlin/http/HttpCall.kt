@@ -1,8 +1,8 @@
 package http
 
-import http.backend.HttpRequestDataBuilder
-import http.backend.HttpResponseData
-import http.backend.execute
+import http.request.HttpRequestDataBuilder
+import http.response.HttpResponseData
+import http.response.execute
 import http.request.BaseHttpRequest
 import http.request.HttpRequest
 import http.request.HttpRequestPipeline

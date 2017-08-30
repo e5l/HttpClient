@@ -1,14 +1,16 @@
 package http.backend.jvm
 
 import http.backend.HttpBackend
-import http.backend.HttpRequestData
-import http.backend.HttpResponseData
-import http.backend.HttpResponseDataBuilder
+import http.core.ProtocolVersion
+import http.request.HttpRequestData
+import http.response.EmptyBody
+import http.response.HttpResponseData
+import http.response.HttpResponseDataBuilder
+import http.response.StreamBody
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import org.apache.http.HttpResponse
 import org.apache.http.concurrent.FutureCallback
 import org.apache.http.impl.nio.client.HttpAsyncClients
-import org.apache.http.util.EntityUtils
 import org.jetbrains.ktor.http.HttpStatusCode
 import java.net.URI
 
@@ -42,19 +44,22 @@ class ApacheBackend : HttpBackend {
                 override fun completed(result: HttpResponse) {
                     continuation.resume(result)
                 }
-
             })
         }
 
-        // blocking
-        response.allHeaders
+        val protocolVersion = response.statusLine.protocolVersion
+
         return HttpResponseDataBuilder().apply {
             statusCode = HttpStatusCode.fromValue(response.statusLine.statusCode)
-            body = response.entity.content
+            body = if (response.entity.isStreaming) StreamBody(response.entity.content) else EmptyBody
             reason = response.statusLine.reasonPhrase
 
             headers {
                 response.allHeaders.forEach { append(it.name, it.value) }
+            }
+
+            with(protocolVersion) {
+                version = ProtocolVersion(protocol, major, minor)
             }
         }.build()
     }

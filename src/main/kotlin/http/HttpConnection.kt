@@ -1,6 +1,6 @@
 package http
 
-import http.backend.HttpRequestDataBuilder
+import http.request.HttpRequestDataBuilder
 import http.request.HttpRequestPipeline
 import http.response.HttpResponse
 import http.response.HttpResponsePipeline

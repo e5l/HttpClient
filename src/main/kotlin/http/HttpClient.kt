@@ -1,8 +1,8 @@
 package http
 
 import http.backend.HttpBackend
-import http.backend.HttpRequestData
-import http.backend.HttpRequestDataBuilder
+import http.request.HttpRequestData
+import http.request.HttpRequestDataBuilder
 import http.request.HttpRequestPipeline
 import http.response.HttpResponsePipeline
 import java.io.Closeable
