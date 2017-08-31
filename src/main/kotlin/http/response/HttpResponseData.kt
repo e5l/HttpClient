@@ -1,6 +1,7 @@
 package http.response
 
 import http.HttpCall
+import http.common.HttpMessage
 import http.common.HttpMessageBody
 import http.common.ProtocolVersion
 import http.request.makeRequest
@@ -8,14 +9,11 @@ import org.jetbrains.ktor.http.HttpStatusCode
 import org.jetbrains.ktor.util.ValuesMap
 import org.jetbrains.ktor.util.ValuesMapBuilder
 
-interface HttpResponseData {
+interface HttpResponseData : HttpMessage {
     // status line
     val statusCode: HttpStatusCode
     val reason: String
     val version: ProtocolVersion
-
-    val body: HttpMessageBody
-    val headers: ValuesMap
 }
 
 class HttpResponseDataBuilder {

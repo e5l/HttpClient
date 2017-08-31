@@ -1,19 +1,17 @@
 package http.request
 
 import http.common.EmptyBody
+import http.common.HttpMessage
 import http.common.HttpMessageBody
 import org.jetbrains.ktor.http.HttpMethod
 import org.jetbrains.ktor.util.URLBuilder
 import org.jetbrains.ktor.util.URLProtocol
-import org.jetbrains.ktor.util.ValuesMap
 import org.jetbrains.ktor.util.ValuesMapBuilder
 
-interface HttpRequestData {
+interface HttpRequestData : HttpMessage {
     val protocol: URLProtocol
     val method: HttpMethod
     val url: String
-    val headers: ValuesMap
-    val body: HttpMessageBody
 }
 
 class HttpRequestDataBuilder {
