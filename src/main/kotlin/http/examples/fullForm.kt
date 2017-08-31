@@ -28,7 +28,7 @@ val HttpResponseData.charset: Charset
             ?.let { Charset.forName(it[1]) }
             ?: Charset.defaultCharset()
 
-fun HttpResponseData.bodyRawText(): String {
+fun HttpResponseData.bodyText(): String {
     val responseBody = body
     return when (responseBody) {
         is WriteChannelBody -> {
@@ -54,7 +54,7 @@ suspend fun full(client: HttpClient) {
         }
     }
 
-    println("${searchResults.statusCode} ${searchResults.bodyRawText()}")
+    println("${searchResults.statusCode} ${searchResults.bodyText()}")
 
     val redditFrontJson = client.call {
         url {
@@ -72,7 +72,7 @@ suspend fun full(client: HttpClient) {
         }
     }
 
-    println(redditFrontJson.bodyRawText())
+    println(redditFrontJson.bodyText())
 }
 
 fun main(args: Array<String>) {

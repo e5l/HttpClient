@@ -29,6 +29,7 @@ dependencies {
 
     compile "org.jetbrains.ktor:ktor-core:$ktor_version"
     compile "org.jetbrains.ktor:ktor-netty:$ktor_version"
+    compile "ch.qos.logback:logback-classic:1.2.1"
 
     compile "org.apache.httpcomponents:httpasyncclient:4.1.3"
 

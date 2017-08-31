@@ -9,7 +9,6 @@ import http.common.WriteChannelBody
 import http.response.HttpResponseData
 import http.response.HttpResponseDataBuilder
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
-import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.concurrent.FutureCallback
 import org.apache.http.entity.ByteArrayEntity
@@ -21,6 +20,7 @@ import org.jetbrains.ktor.cio.toReadChannel
 import org.jetbrains.ktor.http.HttpStatusCode
 import java.net.URI
 
+// make as factory
 class ApacheBackend : HttpBackend {
     private val backend = HttpAsyncClients.createDefault()
 
