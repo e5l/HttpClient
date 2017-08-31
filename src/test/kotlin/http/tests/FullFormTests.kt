@@ -32,7 +32,7 @@ class FullFormTests : TestWithKtor() {
 
     @Test
     fun testGet() {
-        HttpClient(ApacheBackend()).use {
+        HttpClient(ApacheBackend).use {
             runBlocking {
                 val text = it.call {
                     url {

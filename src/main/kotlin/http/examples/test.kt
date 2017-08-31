@@ -1,5 +1,8 @@
 package http.examples
 
+import http.HttpClient
+import http.backend.jvm.ApacheBackend
+
 /*
 fun testComplex(client: HttpClient) {
     client.call {
@@ -9,8 +12,6 @@ fun testComplex(client: HttpClient) {
         port = ""
         url = "google.com"
         path = "/"
-        cookies {
-        }
         headers {
             acceptEncoding = ""
             acceptLanguage = ""
@@ -29,3 +30,7 @@ fun testComplex(client: HttpClient) {
     }
 }
 */
+
+fun requestApi() {
+    val client = HttpClient(ApacheBackend)
+}

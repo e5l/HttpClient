@@ -77,7 +77,7 @@ suspend fun full(client: HttpClient) {
 
 fun main(args: Array<String>) {
     runBlocking {
-        HttpClient(ApacheBackend()).use {
+        HttpClient(ApacheBackend).use {
             full(it)
         }
     }

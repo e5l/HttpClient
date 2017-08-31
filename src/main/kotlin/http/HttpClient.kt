@@ -1,6 +1,7 @@
 package http
 
-import http.backend.HttpBackend
+import http.backend.HttpClientBackend
+import http.backend.HttpClientBackendFactory
 import http.request.HttpRequestData
 import http.request.HttpRequestDataBuilder
 import http.request.HttpRequestPipeline
@@ -8,13 +9,15 @@ import http.response.HttpResponsePipeline
 import java.io.Closeable
 
 class HttpClient(
-        val backend: HttpBackend,
+        backendFactory: HttpClientBackendFactory,
         block: HttpClient.() -> Unit = {}
 ) : HttpClientScope, Closeable {
 
     override val parent: HttpClientScope = EmptyScope
     override val requestPipeline = HttpRequestPipeline()
     override val responsePipeline = HttpResponsePipeline()
+
+    private val backend: HttpClientBackend = backendFactory()
 
     init {
         requestPipeline.intercept(HttpRequestPipeline.Send, { requestData ->

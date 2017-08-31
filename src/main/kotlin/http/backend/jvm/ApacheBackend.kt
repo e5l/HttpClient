@@ -1,11 +1,12 @@
 package http.backend.jvm
 
-import http.backend.HttpBackend
-import http.common.ProtocolVersion
-import http.request.HttpRequestData
+import http.backend.HttpClientBackend
+import http.backend.HttpClientBackendFactory
 import http.common.EmptyBody
+import http.common.ProtocolVersion
 import http.common.ReadChannelBody
 import http.common.WriteChannelBody
+import http.request.HttpRequestData
 import http.response.HttpResponseData
 import http.response.HttpResponseDataBuilder
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
@@ -21,7 +22,7 @@ import org.jetbrains.ktor.http.HttpStatusCode
 import java.net.URI
 
 // make as factory
-class ApacheBackend : HttpBackend {
+class ApacheBackend : HttpClientBackend {
     private val backend = HttpAsyncClients.createDefault()
 
     init {
@@ -87,4 +88,9 @@ class ApacheBackend : HttpBackend {
     override fun close() {
         backend.close()
     }
+
+    companion object : HttpClientBackendFactory {
+        override operator fun invoke(): HttpClientBackend = ApacheBackend()
+    }
 }
+
