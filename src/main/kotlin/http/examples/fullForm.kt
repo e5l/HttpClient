@@ -4,14 +4,18 @@ import http.HttpClient
 import http.response.HttpResponseData
 import http.backend.jvm.ApacheBackend
 import http.call
-import http.response.EmptyBody
-import http.response.StreamBody
+import http.common.EmptyBody
+import http.common.ReadChannelBody
+import http.common.WriteChannelBody
 import kotlinx.coroutines.experimental.runBlocking
+import org.jetbrains.ktor.cio.ByteBufferWriteChannel
+import org.jetbrains.ktor.cio.toInputStream
 import org.jetbrains.ktor.http.ContentType
 import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.http.HttpMethod
 import org.jetbrains.ktor.util.URLProtocol
 import java.io.InputStreamReader
+import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
 // TBD: write feature to parse headers
@@ -27,7 +31,12 @@ val HttpResponseData.charset: Charset
 fun HttpResponseData.bodyRawText(): String {
     val responseBody = body
     return when (responseBody) {
-        is StreamBody -> InputStreamReader(responseBody.stream, charset).readText()
+        is WriteChannelBody -> {
+            val channel = ByteBufferWriteChannel()
+            responseBody.block(channel)
+            channel.toString(charset)
+        }
+        is ReadChannelBody -> InputStreamReader(responseBody.channel.toInputStream(), charset).readText()
         is EmptyBody -> ""
     }
 }
