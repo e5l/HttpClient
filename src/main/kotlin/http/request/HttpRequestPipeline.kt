@@ -1,8 +1,8 @@
 package http.request
 
 import http.HttpCall
-import http.pipeline.Pipeline
-import http.pipeline.PipelinePhase
+import org.jetbrains.ktor.pipeline.Pipeline
+import org.jetbrains.ktor.pipeline.PipelinePhase
 
 class HttpRequestPipeline : Pipeline<Any, HttpCall>(Route, Address, Send) {
 
