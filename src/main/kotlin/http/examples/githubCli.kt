@@ -1,7 +1,7 @@
 package http.examples
 
 import http.HttpClient
-import http.HttpClientScope
+import http.pipeline.HttpClientScope
 import http.backend.jvm.ApacheBackend
 
 private fun HttpClientScope.get(s: String): HttpClientScope = TODO()

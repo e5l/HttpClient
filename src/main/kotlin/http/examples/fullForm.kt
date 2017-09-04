@@ -3,7 +3,7 @@ package http.examples
 import http.HttpClient
 import http.response.HttpResponseData
 import http.backend.jvm.ApacheBackend
-import http.call
+import http.call.call
 import http.common.EmptyBody
 import http.common.ReadChannelBody
 import http.common.WriteChannelBody
@@ -15,7 +15,6 @@ import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.http.HttpMethod
 import org.jetbrains.ktor.util.URLProtocol
 import java.io.InputStreamReader
-import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
 // TBD: write feature to parse headers

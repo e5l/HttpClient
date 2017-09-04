@@ -2,7 +2,8 @@ package http
 
 import http.backend.HttpClientBackend
 import http.backend.HttpClientBackendFactory
-import http.features.install
+import http.pipeline.EmptyScope
+import http.pipeline.HttpClientScope
 import http.request.HttpRequestData
 import http.request.HttpRequestDataBuilder
 import http.request.HttpRequestPipeline

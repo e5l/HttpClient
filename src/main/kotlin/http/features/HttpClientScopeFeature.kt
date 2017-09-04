@@ -1,6 +1,6 @@
 package http.features
 
-import http.HttpClientScope
+import http.pipeline.HttpClientScope
 import org.jetbrains.ktor.util.AttributeKey
 
 interface HttpClientScopeFeature<out TBuilder : Any, TFeature : Any> {

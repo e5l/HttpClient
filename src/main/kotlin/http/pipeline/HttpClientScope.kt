@@ -1,4 +1,4 @@
-package http
+package http.pipeline
 
 import http.request.HttpRequestPipeline
 import http.response.HttpResponsePipeline
@@ -35,4 +35,8 @@ fun HttpClientScope.buildResponsePipeline(): HttpResponsePipeline = HttpResponse
 
 fun HttpClientScope.buildRequestPipeline(): HttpRequestPipeline = HttpRequestPipeline().apply {
     visit(after = { merge(it.requestPipeline) })
+}
+
+fun HttpClientScope.config(block: HttpClientScope.() -> Unit): HttpClientScope {
+    return CallScope(this).apply(block)
 }

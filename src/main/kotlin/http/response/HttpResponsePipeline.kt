@@ -1,6 +1,6 @@
 package http.response
 
-import http.HttpCall
+import http.call.HttpCall
 import org.jetbrains.ktor.pipeline.Pipeline
 import org.jetbrains.ktor.pipeline.PipelinePhase
 import kotlin.reflect.KClass

@@ -1,14 +1,9 @@
-package http
+package http.call
 
-import http.request.HttpRequestDataBuilder
-import http.response.HttpResponseData
-import http.response.execute
-import http.request.BaseHttpRequest
-import http.request.HttpRequest
-import http.request.HttpRequestPipeline
-import http.response.BaseHttpResponse
-import http.response.HttpResponse
-import http.response.HttpResponsePipeline
+import http.pipeline.*
+import http.request.*
+import http.response.*
+import org.jetbrains.ktor.util.URLProtocol
 
 interface HttpCall {
     val requestData: Any
@@ -25,11 +20,6 @@ class BaseHttpCall(
     override val response = BaseHttpResponse(this, responsePipeline)
 }
 
-class CallScope(override val parent: HttpClientScope) : HttpClientScope {
-    override val requestPipeline = HttpRequestPipeline()
-    override val responsePipeline = HttpResponsePipeline()
-}
-
 suspend fun HttpClientScope.call(block: HttpRequestDataBuilder.() -> Unit): HttpResponseData {
     val scope = CallScope(this)
     val request = HttpRequestDataBuilder().apply(block).build()
@@ -42,3 +32,14 @@ suspend fun HttpClientScope.call(block: HttpRequestDataBuilder.() -> Unit): Http
 
     return execute(call)
 }
+
+suspend fun HttpClientScope.get(
+        host: String = "localhost",
+        port: Int = 80,
+        path: String = "",
+        protocol: URLProtocol = URLProtocol.HTTP
+): HttpResponseData =
+        call {
+            url(host, port, path)
+            this.protocol = protocol
+        }

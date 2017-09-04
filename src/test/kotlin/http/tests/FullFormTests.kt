@@ -2,7 +2,7 @@ package http.tests
 
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
-import http.call
+import http.call.call
 import http.examples.bodyText
 import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking

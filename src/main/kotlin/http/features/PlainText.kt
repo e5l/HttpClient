@@ -1,6 +1,6 @@
 package http.features
 
-import http.HttpClientScope
+import http.pipeline.HttpClientScope
 import http.response.HttpResponseData
 import http.response.HttpResponsePipeline
 import http.response.ResponseContainer

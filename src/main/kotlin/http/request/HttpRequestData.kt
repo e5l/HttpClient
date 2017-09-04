@@ -39,3 +39,11 @@ class HttpRequestDataBuilder {
         override val body = this@HttpRequestDataBuilder.body
     }
 }
+
+fun HttpRequestDataBuilder.url(host: String = "localhost", port: Int = 80, path: String = "")  {
+    url {
+        this.host = host
+        this.port = port
+        path(path)
+    }
+}

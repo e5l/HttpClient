@@ -1,6 +1,6 @@
 package http.response
 
-import http.HttpCall
+import http.call.HttpCall
 import http.request.makeRequest
 
 interface HttpResponse {
