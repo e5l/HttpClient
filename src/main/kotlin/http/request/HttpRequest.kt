@@ -1,6 +1,7 @@
 package http.request
 
 import http.call.HttpCall
+import http.call.HttpCallData
 
 
 interface HttpRequest {
@@ -10,4 +11,4 @@ interface HttpRequest {
 
 open class BaseHttpRequest(override val call: HttpCall, override val pipeline: HttpRequestPipeline) : HttpRequest
 
-suspend fun HttpCall.makeRequest() = request.pipeline.execute(this, requestData)
+suspend fun HttpCall.makeRequest(): HttpCallData = request.pipeline.execute(this, requestData) as HttpCallData

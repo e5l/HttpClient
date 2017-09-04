@@ -2,41 +2,33 @@ package http.pipeline
 
 import http.request.HttpRequestPipeline
 import http.response.HttpResponsePipeline
+import org.jetbrains.ktor.util.Attributes
+import java.io.Closeable
 
-interface HttpClientScope {
-    val parent: HttpClientScope
+sealed class HttpClientScope : Closeable {
+    abstract val attributes: Attributes
 
-    val requestPipeline: HttpRequestPipeline
-    val responsePipeline: HttpResponsePipeline
+    abstract val parent: HttpClientScope
+    abstract val requestPipeline: HttpRequestPipeline
+    abstract val responsePipeline: HttpResponsePipeline
 }
 
-object EmptyScope : HttpClientScope {
+class EmptyScope : HttpClientScope() {
+    override val attributes = Attributes()
+
     override val parent = this
     override val requestPipeline = HttpRequestPipeline()
     override val responsePipeline = HttpResponsePipeline()
+
+    override fun close() {}
 }
 
-fun HttpClientScope.visit(
-        before: (HttpClientScope) -> Unit = {},
-        after: (HttpClientScope) -> Unit = {}
-) {
-    if (this is EmptyScope) {
-        return
+open class CallScope(final override val parent: HttpClientScope) : HttpClientScope() {
+    override fun close() {
+        parent.close()
     }
 
-    before(this)
-    parent.visit(before, after)
-    after(this)
-}
-
-fun HttpClientScope.buildResponsePipeline(): HttpResponsePipeline = HttpResponsePipeline().apply {
-    visit(after = { merge(it.responsePipeline) })
-}
-
-fun HttpClientScope.buildRequestPipeline(): HttpRequestPipeline = HttpRequestPipeline().apply {
-    visit(after = { merge(it.requestPipeline) })
-}
-
-fun HttpClientScope.config(block: HttpClientScope.() -> Unit): HttpClientScope {
-    return CallScope(this).apply(block)
+    override val attributes = Attributes()
+    override val requestPipeline = HttpRequestPipeline()
+    override val responsePipeline = HttpResponsePipeline()
 }

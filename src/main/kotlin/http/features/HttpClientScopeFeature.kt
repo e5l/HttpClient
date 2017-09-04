@@ -1,7 +1,12 @@
 package http.features
 
+import http.pipeline.EmptyScope
 import http.pipeline.HttpClientScope
+import org.jetbrains.ktor.application.DuplicateApplicationFeatureException
 import org.jetbrains.ktor.util.AttributeKey
+import org.jetbrains.ktor.util.Attributes
+
+private val featureRegistryKey = AttributeKey<Attributes>("ApplicationFeatureRegistry")
 
 interface HttpClientScopeFeature<out TBuilder : Any, TFeature : Any> {
     val key: AttributeKey<TFeature>
@@ -9,9 +14,42 @@ interface HttpClientScopeFeature<out TBuilder : Any, TFeature : Any> {
     fun install(scope: HttpClientScope, configure: TBuilder.() -> Unit): TFeature
 }
 
-fun <D: HttpClientScope, TBuilder: Any, TFeature: Any> D.install(
+// TODO: refactor with common part in ktor
+fun <TBuilder : Any, TFeature : Any> HttpClientScope.install(
         feature: HttpClientScopeFeature<TBuilder, TFeature>,
-        block: TBuilder.() -> Unit = {}
-) {
-    feature.install(this, block)
+        configure: TBuilder.() -> Unit = {}
+): TFeature {
+    val registry = attributes.computeIfAbsent(featureRegistryKey) { Attributes() }
+    val installedFeature = registry.getOrNull(feature.key)
+    when (installedFeature) {
+        null -> {
+            try {
+                @Suppress("DEPRECATION_ERROR")
+                val installed = feature.install(this, configure)
+                registry.put(feature.key, installed)
+                //environment.log.trace("`${feature.name}` feature was installed successfully.")
+                return installed
+            } catch (t: Throwable) {
+                //environment.log.error("`${feature.name}` feature failed to install.", t)
+                throw t
+            }
+        }
+        feature -> {
+            //environment.log.warning("`${feature.name}` feature is already installed")
+            return installedFeature
+        }
+        else -> {
+            throw DuplicateApplicationFeatureException("Conflicting application feature is already installed with the same key as `${feature.key.name}`")
+        }
+    }
+}
+
+fun <B : Any, F : Any> HttpClientScope.feature(feature: HttpClientScopeFeature<B, F>): F {
+    var it = this
+    while (it !is EmptyScope) {
+        it.attributes.getOrNull(featureRegistryKey)?.getOrNull(feature.key)?.let { return it }
+        it = it.parent
+    }
+
+    error("Feature not found: ${feature.key}")
 }

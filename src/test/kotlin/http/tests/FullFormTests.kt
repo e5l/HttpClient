@@ -1,9 +1,9 @@
 package http.tests
 
-import http.HttpClient
+import http.*
 import http.backend.jvm.ApacheBackend
-import http.call.call
-import http.examples.bodyText
+import http.features.PlainText
+import http.features.install
 import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking
 import org.jetbrains.ktor.host.embeddedServer
@@ -32,21 +32,41 @@ class FullFormTests : TestWithKtor() {
 
     @Test
     fun testGet() {
-        HttpClient(ApacheBackend).use {
-            runBlocking {
-                val text = it.call {
-                    url {
-                        host = "localhost"
-                        protocol = URLProtocol.HTTP
-                        port = 8080
-                        path("hello")
-                        method = HttpMethod.Get
-                    }
-                }.bodyText()
+        val client = HttpClient(ApacheBackend)
+        runBlocking {
+            val text = client.call {
+                url {
+                    host = "localhost"
+                    protocol = URLProtocol.HTTP
+                    port = 8080
+                    path("hello")
+                    method = HttpMethod.Get
+                }
+            }.bodyText()
 
-                assert(text == "Hello, world")
+            assert(text == "Hello, world")
+        }
+
+        client.close()
+    }
+
+    @Test
+    fun testRequest() {
+        val client = HttpClient(ApacheBackend) {
+            install(PlainText)
+        }
+
+        val request = request {
+            url {
+                host = "localhost"
+                protocol = URLProtocol.HTTP
+                port = 8080
+                path("hello")
+                method = HttpMethod.Get
             }
         }
 
+        val body = runBlocking { client.execute<String>(request) }
+        assert(body == "Hello, world")
     }
 }

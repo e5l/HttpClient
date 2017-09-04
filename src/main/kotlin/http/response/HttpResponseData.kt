@@ -1,10 +1,8 @@
 package http.response
 
-import http.call.HttpCall
 import http.common.HttpMessage
 import http.common.HttpMessageBody
 import http.common.ProtocolVersion
-import http.request.makeRequest
 import org.jetbrains.ktor.http.HttpStatusCode
 import org.jetbrains.ktor.util.ValuesMapBuilder
 
@@ -36,6 +34,3 @@ class HttpResponseDataBuilder {
         override val headers = headersBuilder.build()
     }
 }
-
-inline suspend fun <reified T> execute(call: HttpCall): T = call.makeResponse<T>(call.makeRequest()).value as? T
-        ?: error("Fail to process call: $call \n" + "Expected type: ${T::class}")

@@ -11,39 +11,32 @@ import org.jetbrains.ktor.util.ValuesMapBuilder
 interface HttpRequestData : HttpMessage {
     val protocol: URLProtocol
     val method: HttpMethod
-    val url: String
+    val url: URLBuilder
 }
 
 class HttpRequestDataBuilder {
     var protocol = URLProtocol.HTTP
     var method = HttpMethod.Get
 
-    private val urlBuilder = URLBuilder()
-    private val headersBuilder = ValuesMapBuilder()
+    val url = URLBuilder()
+    val headersBuilder = ValuesMapBuilder()
 
     var body: HttpMessageBody = EmptyBody
-
-    fun url(block: URLBuilder.() -> Unit) {
-        urlBuilder.apply(block)
-    }
 
     fun headers(block: ValuesMapBuilder.() -> Unit) {
         headersBuilder.apply(block)
     }
 
+    fun url(block: URLBuilder.() -> Unit) {
+        url.apply(block)
+    }
+
     fun build() =  object : HttpRequestData {
         override val protocol = this@HttpRequestDataBuilder.protocol
         override val method = this@HttpRequestDataBuilder.method
-        override val url = urlBuilder.build()
+        override val url = this@HttpRequestDataBuilder.url
         override val headers = headersBuilder.build()
         override val body = this@HttpRequestDataBuilder.body
     }
 }
 
-fun HttpRequestDataBuilder.url(host: String = "localhost", port: Int = 80, path: String = "")  {
-    url {
-        this.host = host
-        this.port = port
-        path(path)
-    }
-}

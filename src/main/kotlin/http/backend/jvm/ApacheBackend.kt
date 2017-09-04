@@ -21,7 +21,7 @@ import org.jetbrains.ktor.cio.toReadChannel
 import org.jetbrains.ktor.http.HttpStatusCode
 import java.net.URI
 
-// make as factory
+
 class ApacheBackend : HttpClientBackend {
     private val backend = HttpAsyncClients.createDefault()
 
@@ -31,7 +31,7 @@ class ApacheBackend : HttpClientBackend {
 
     suspend override fun makeRequest(data: HttpRequestData): HttpResponseData {
         val builder = org.apache.http.client.methods.RequestBuilder.create(data.method.value)
-        builder.uri = URI(data.url)
+        builder.uri = URI(data.url.build())
 
         data.headers.entries().forEach { (name, values) ->
             values.forEach { value -> builder.addHeader(name, value) }
