@@ -3,6 +3,8 @@ package http.request
 import http.common.EmptyBody
 import http.common.HttpMessage
 import http.common.HttpMessageBody
+import http.common.ReadChannelBody
+import org.jetbrains.ktor.cio.ByteBufferReadChannel
 import org.jetbrains.ktor.http.HttpMethod
 import org.jetbrains.ktor.util.URLBuilder
 import org.jetbrains.ktor.util.URLProtocol
@@ -40,3 +42,9 @@ class HttpRequestDataBuilder {
     }
 }
 
+fun request(block: HttpRequestDataBuilder.() -> Unit): HttpRequestDataBuilder =
+        HttpRequestDataBuilder().apply(block)
+
+fun HttpRequestDataBuilder.body(text: String) {
+    body = ReadChannelBody(ByteBufferReadChannel(text.toByteArray()))
+}

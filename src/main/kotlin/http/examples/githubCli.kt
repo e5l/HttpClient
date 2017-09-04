@@ -7,6 +7,9 @@ import http.backend.jvm.ApacheBackend
 private fun HttpClientScope.get(s: String): HttpClientScope = TODO()
 private fun <T> HttpClientScope.responseBody(): Any = TODO()
 
+class GithubCli {
+}
+
 fun main(args: Array<String>) {
     val client = HttpClient(ApacheBackend)
 

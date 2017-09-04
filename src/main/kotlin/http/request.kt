@@ -28,7 +28,3 @@ suspend fun HttpClientScope.get(
     url(host, port, path)
     this.protocol = protocol
 }
-
-fun request(block: HttpRequestDataBuilder.() -> Unit): HttpRequestDataBuilder =
-        HttpRequestDataBuilder().apply(block)
-

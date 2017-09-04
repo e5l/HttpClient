@@ -5,7 +5,7 @@ import http.backend.jvm.ApacheBackend
 import http.execute
 import http.pipeline.CallScope
 import http.pipeline.HttpClientScope
-import http.request
+import http.request.request
 import http.url
 import kotlinx.coroutines.experimental.runBlocking
 

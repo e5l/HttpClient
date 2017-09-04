@@ -21,7 +21,7 @@ import org.jetbrains.ktor.routing.routing
 import org.junit.Test
 
 
-class CookiesTest : TestWithKtor() {
+class CookiesTests : TestWithKtor() {
     private val HOST = "localhost"
 
     override val server: ApplicationHost = embeddedServer(Netty, 8080) {

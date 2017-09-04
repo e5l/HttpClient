@@ -2,6 +2,7 @@ package http.examples
 
 import http.*
 import http.backend.jvm.ApacheBackend
+import http.request.request
 import http.response.HttpResponseData
 import kotlinx.coroutines.experimental.runBlocking
 
