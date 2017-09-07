@@ -1,22 +1,22 @@
 package http.features
 
+import http.pipeline.ClientScope
 import http.pipeline.EmptyScope
-import http.pipeline.HttpClientScope
 import org.jetbrains.ktor.application.DuplicateApplicationFeatureException
 import org.jetbrains.ktor.util.AttributeKey
 import org.jetbrains.ktor.util.Attributes
 
 private val featureRegistryKey = AttributeKey<Attributes>("ApplicationFeatureRegistry")
 
-interface HttpClientScopeFeature<out TBuilder : Any, TFeature : Any> {
+interface ClientScopeFeature<out TBuilder : Any, TFeature : Any> {
     val key: AttributeKey<TFeature>
 
-    fun install(scope: HttpClientScope, configure: TBuilder.() -> Unit): TFeature
+    fun install(scope: ClientScope, configure: TBuilder.() -> Unit): TFeature
 }
 
 // TODO: refactor with common part in ktor
-fun <TBuilder : Any, TFeature : Any> HttpClientScope.install(
-        feature: HttpClientScopeFeature<TBuilder, TFeature>,
+fun <TBuilder : Any, TFeature : Any> ClientScope.install(
+        feature: ClientScopeFeature<TBuilder, TFeature>,
         configure: TBuilder.() -> Unit = {}
 ): TFeature {
     val registry = attributes.computeIfAbsent(featureRegistryKey) { Attributes() }
@@ -44,7 +44,7 @@ fun <TBuilder : Any, TFeature : Any> HttpClientScope.install(
     }
 }
 
-fun <B : Any, F : Any> HttpClientScope.feature(feature: HttpClientScopeFeature<B, F>): F {
+fun <B : Any, F : Any> ClientScope.feature(feature: ClientScopeFeature<B, F>): F {
     var it = this
     while (it !is EmptyScope) {
         it.attributes.getOrNull(featureRegistryKey)?.getOrNull(feature.key)?.let { return it }

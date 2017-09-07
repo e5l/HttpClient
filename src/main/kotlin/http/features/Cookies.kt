@@ -1,9 +1,7 @@
 package http.features
 
-import http.pipeline.HttpClientScope
-import http.request.HttpRequestDataBuilder
-import http.request.HttpRequestPipeline
-import http.response.HttpResponseData
+import http.pipeline.ClientScope
+import http.request.RequestPipeline
 import http.response.HttpResponsePipeline
 import org.jetbrains.ktor.http.Cookie
 import org.jetbrains.ktor.http.HttpHeaders
@@ -49,27 +47,21 @@ class Cookies(private val storage: CookiesStorage) {
         }
     }
 
-    companion object Feature : HttpClientScopeFeature<Configuration, Cookies> {
+    companion object Feature : ClientScopeFeature<Configuration, Cookies> {
         override val key: AttributeKey<Cookies> = AttributeKey("Cookies")
 
-        override fun install(scope: HttpClientScope, configure: Configuration.() -> Unit): Cookies {
+        override fun install(scope: ClientScope, configure: Configuration.() -> Unit): Cookies {
             val cookies = Configuration().apply(configure).build()
 
-            scope.requestPipeline.intercept(HttpRequestPipeline.State) { data ->
-                val request = (data as? HttpRequestDataBuilder) ?: return@intercept
-
-                request.headers {
-                    cookies.storage.forEach(request.url.host) {
-                        set(HttpHeaders.Cookie, renderSetCookieHeader(it))
-                    }
+            scope.requestPipeline.intercept(RequestPipeline.State) { data ->
+                cookies.storage[call.requestBuilder.url.host]?.values?.forEach {
+                    call.requestBuilder.headers.append(HttpHeaders.Cookie, renderSetCookieHeader(it))
                 }
             }
 
             scope.responsePipeline.intercept(HttpResponsePipeline.Transform) { data ->
-                val response = data.response as? HttpResponseData ?: return@intercept
-
-                response.headers.getAll(HttpHeaders.SetCookie)?.map { parseServerSetCookieHeader(it) }?.forEach {
-                    cookies.storage[data.request.url.host] = it
+                call.response.headers.getAll(HttpHeaders.SetCookie)?.map { parseServerSetCookieHeader(it) }?.forEach {
+                    cookies.storage[call.request.local.host] = it
                 }
             }
 
@@ -78,5 +70,5 @@ class Cookies(private val storage: CookiesStorage) {
     }
 }
 
-fun HttpClientScope.cookies(host: String): Map<String, Cookie> = feature(Cookies)[host] ?: mapOf()
+fun ClientScope.cookies(host: String): Map<String, Cookie> = feature(Cookies)[host] ?: mapOf()
 

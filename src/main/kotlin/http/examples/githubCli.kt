@@ -1,11 +1,11 @@
 package http.examples
 
 import http.HttpClient
-import http.pipeline.HttpClientScope
 import http.backend.jvm.ApacheBackend
+import http.pipeline.ClientScope
 
-private fun HttpClientScope.get(s: String): HttpClientScope = TODO()
-private fun <T> HttpClientScope.responseBody(): Any = TODO()
+private fun ClientScope.get(s: String): ClientScope = TODO()
+private fun <T> ClientScope.responseBody(): Any = TODO()
 
 class GithubCli {
 }

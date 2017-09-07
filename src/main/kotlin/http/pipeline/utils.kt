@@ -1,11 +1,11 @@
 package http.pipeline
 
-import http.request.HttpRequestPipeline
+import http.request.RequestPipeline
 import http.response.HttpResponsePipeline
 
-fun HttpClientScope.visit(
-        before: (HttpClientScope) -> Unit = {},
-        after: (HttpClientScope) -> Unit = {}
+fun ClientScope.visit(
+        before: (ClientScope) -> Unit = {},
+        after: (ClientScope) -> Unit = {}
 ) {
     if (this is EmptyScope) {
         return
@@ -16,14 +16,14 @@ fun HttpClientScope.visit(
     after(this)
 }
 
-fun HttpClientScope.buildResponsePipeline(): HttpResponsePipeline = HttpResponsePipeline().apply {
+fun ClientScope.buildResponsePipeline(): HttpResponsePipeline = HttpResponsePipeline().apply {
     visit(after = { merge(it.responsePipeline) })
 }
 
-fun HttpClientScope.buildRequestPipeline(): HttpRequestPipeline = HttpRequestPipeline().apply {
+fun ClientScope.buildRequestPipeline(): RequestPipeline = RequestPipeline().apply {
     visit(after = { merge(it.requestPipeline) })
 }
 
-fun HttpClientScope.config(block: HttpClientScope.() -> Unit): HttpClientScope {
+fun ClientScope.config(block: ClientScope.() -> Unit): ClientScope {
     return CallScope(this).apply(block)
 }

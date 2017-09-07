@@ -1,11 +1,12 @@
 package http.backend
 
-import http.request.HttpRequestData
-import http.response.HttpResponseData
+import http.common.HttpMessageBody
+import http.request.Request
+import http.response.ResponseBuilder
 import java.io.Closeable
 
 interface HttpClientBackend : Closeable {
-    suspend fun makeRequest(data: HttpRequestData): HttpResponseData
+    suspend fun makeRequest(data: Request, builder: ResponseBuilder, requestData: Any): HttpMessageBody
 }
 
 interface HttpClientBackendFactory {

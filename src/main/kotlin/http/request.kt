@@ -1,30 +1,32 @@
 package http
 
 import execute
-import http.call.BaseHttpCall
-import http.pipeline.CallScope
-import http.pipeline.HttpClientScope
+import http.call.HttpClientCall
+import http.pipeline.ClientScope
 import http.pipeline.buildRequestPipeline
 import http.pipeline.buildResponsePipeline
-import http.request.HttpRequestDataBuilder
-import http.response.HttpResponseData
+import http.request.RequestBuilder
+import http.response.ResponseData
 import org.jetbrains.ktor.util.URLProtocol
 
-suspend inline fun <reified T> HttpClientScope.execute(request: HttpRequestDataBuilder): T {
-    val scope = CallScope(this)
-    val call = BaseHttpCall(scope.buildRequestPipeline(), scope.buildResponsePipeline(), request)
-    return execute(call)
+fun ClientScope.request(block: RequestBuilder.() -> Unit): HttpClientCall =
+        HttpClientCall(buildRequestPipeline(), buildResponsePipeline(), RequestBuilder().apply(block))
+
+suspend inline fun <reified T> ClientScope.execute(builder: RequestBuilder, requestData: Any = Unit): T {
+    return HttpClientCall(buildRequestPipeline(), buildResponsePipeline(), builder).execute(requestData)
 }
 
-suspend fun HttpClientScope.call(block: HttpRequestDataBuilder.() -> Unit): HttpResponseData =
-        execute(HttpRequestDataBuilder().apply(block))
+suspend fun ClientScope.executeCall(requestData: Any, block: RequestBuilder.() -> Unit): ResponseData =
+        execute(RequestBuilder().apply(block), requestData)
 
-suspend fun HttpClientScope.get(
+suspend fun ClientScope.get(
         host: String = "localhost",
-        port: Int = 80,
         path: String = "",
-        protocol: URLProtocol = URLProtocol.HTTP
-): HttpResponseData = call {
+        port: Int = 80,
+        scheme: String = "http"
+): ResponseData = executeCall(Unit) {
     url(host, port, path)
-    this.protocol = protocol
+    this.scheme = scheme
 }
+
+suspend fun ClientScope.call(block: RequestBuilder.() -> Unit): HttpClientCall = TODO()

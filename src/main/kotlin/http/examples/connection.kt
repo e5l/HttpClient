@@ -1,18 +1,17 @@
 package http.examples
 
-import http.HttpClient
+import http.*
 import http.backend.jvm.ApacheBackend
-import http.execute
 import http.pipeline.CallScope
-import http.pipeline.HttpClientScope
+import http.pipeline.ClientScope
 import http.request.request
-import http.url
 import kotlinx.coroutines.experimental.runBlocking
 
-abstract class HttpConnection(parent: HttpClientScope) : CallScope(parent)
+abstract class HttpConnection(parent: ClientScope) : CallScope(parent)
 
 suspend fun connect() {
     val client = HttpClient(ApacheBackend)
+
     val request = request {
         url(host = "api.github.com")
     }

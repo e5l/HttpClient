@@ -1,10 +1,10 @@
 package http.request
 
-import http.call.HttpCall
+import http.call.HttpClientCall
 import org.jetbrains.ktor.pipeline.Pipeline
 import org.jetbrains.ktor.pipeline.PipelinePhase
 
-class HttpRequestPipeline : Pipeline<Any, HttpCall>(Route, Address, State, Send) {
+class RequestPipeline : Pipeline<Any, HttpClientCall>(Route, Address, State, Send) {
 
     companion object Phases {
         val Route = PipelinePhase("Route")

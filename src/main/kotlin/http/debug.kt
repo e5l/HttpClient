@@ -1,8 +1,9 @@
 package http
 
-import http.response.HttpResponseData
+import http.call.HttpClientCall
 
-fun HttpResponseData.debug(): String = bodyText().let { body ->
-    "$statusCode: ${body.take(42)}"
+
+suspend fun HttpClientCall.debug(): String = bodyText().let { body ->
+    "${response}: ${body.take(42)}"
 }
 

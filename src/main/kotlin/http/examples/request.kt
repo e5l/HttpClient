@@ -2,12 +2,15 @@ package http.examples
 
 import http.*
 import http.backend.jvm.ApacheBackend
+import http.features.PlainText
+import http.features.install
 import http.request.request
-import http.response.HttpResponseData
 import kotlinx.coroutines.experimental.runBlocking
 
 suspend fun requests() {
-    val client = HttpClient(ApacheBackend)
+    val client = HttpClient(ApacheBackend) {
+        install(PlainText)
+    }
 
     val request = request {
         url(host = "google.com") {
@@ -15,8 +18,8 @@ suspend fun requests() {
         }
     }
 
-    val response = client.execute<HttpResponseData>(request)
-    println(response.debug())
+    val response = client.execute<String>(request)
+    println(response)
     client.close()
 }
 

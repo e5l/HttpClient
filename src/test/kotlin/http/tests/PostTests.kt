@@ -5,7 +5,6 @@ import http.backend.jvm.ApacheBackend
 import http.execute
 import http.features.PlainText
 import http.features.install
-import http.request.body
 import http.request.request
 import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking
@@ -63,11 +62,10 @@ class PostTests : TestWithKtor() {
                 port = 8080
             }
             method = HttpMethod.Post
-            body(sendText)
             headers { set(HttpHeaders.ContentType, ContentType.Text.Plain.withCharset(Charset.defaultCharset()).toString()) }
         }
 
-        val response = runBlocking { client.execute<String>(request) }
+        val response = runBlocking { client.execute<String>(request, sendText) }
         assert(response == sendText)
 
         client.close()

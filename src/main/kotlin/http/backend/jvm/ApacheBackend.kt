@@ -2,15 +2,13 @@ package http.backend.jvm
 
 import http.backend.HttpClientBackend
 import http.backend.HttpClientBackendFactory
-import http.common.EmptyBody
-import http.common.ProtocolVersion
-import http.common.ReadChannelBody
-import http.common.WriteChannelBody
-import http.request.HttpRequestData
-import http.response.HttpResponseData
-import http.response.HttpResponseDataBuilder
+import http.common.*
+import http.request.Request
+import http.response.ResponseBuilder
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import org.apache.http.HttpResponse
+import org.apache.http.client.methods.RequestBuilder
+import org.apache.http.client.utils.URIBuilder
 import org.apache.http.concurrent.FutureCallback
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.entity.InputStreamEntity
@@ -19,7 +17,6 @@ import org.jetbrains.ktor.cio.ByteBufferWriteChannel
 import org.jetbrains.ktor.cio.toInputStream
 import org.jetbrains.ktor.cio.toReadChannel
 import org.jetbrains.ktor.http.HttpStatusCode
-import java.net.URI
 
 
 class ApacheBackend : HttpClientBackend {
@@ -29,26 +26,26 @@ class ApacheBackend : HttpClientBackend {
         backend.start()
     }
 
-    suspend override fun makeRequest(data: HttpRequestData): HttpResponseData {
-        val builder = org.apache.http.client.methods.RequestBuilder.create(data.method.value)
-        builder.uri = URI(data.url.build())
+    suspend override fun makeRequest(data: Request, builder: ResponseBuilder, requestData: Any): HttpMessageBody  {
+        val apacheBuilder = RequestBuilder.create(data.local.method.value)
+        apacheBuilder.uri = URIBuilder().apply {
+        }.build()// (data.local.uri)
 
         data.headers.entries().forEach { (name, values) ->
-            values.forEach { value -> builder.addHeader(name, value) }
+            values.forEach { value -> apacheBuilder.addHeader(name, value) }
         }
 
-        val requestBody = data.body
-        when (requestBody) {
-            is ReadChannelBody -> InputStreamEntity(requestBody.channel.toInputStream())
+        when (requestData) {
+            is ReadChannelBody -> InputStreamEntity(requestData.channel.toInputStream())
             is WriteChannelBody -> {
                 val channel = ByteBufferWriteChannel()
-                requestBody.block(channel)
+                requestData.block(channel)
                 ByteArrayEntity(channel.toByteArray())
             }
             else -> null
-        }?.let { builder.entity = it }
+        }?.let { apacheBuilder.entity = it }
 
-        val request = builder.build()
+        val request = apacheBuilder.build()
 
         val response = suspendCancellableCoroutine<HttpResponse> { continuation ->
             backend.execute(request, object : FutureCallback<HttpResponse> {
@@ -70,9 +67,8 @@ class ApacheBackend : HttpClientBackend {
         val entity = response.entity
         val protocolVersion = statusLine.protocolVersion
 
-        return HttpResponseDataBuilder().apply {
+        builder.apply {
             statusCode = HttpStatusCode.fromValue(statusLine.statusCode)
-            body = if (entity.isStreaming) ReadChannelBody(entity.content.toReadChannel()) else EmptyBody
             reason = statusLine.reasonPhrase
 
             headers {
@@ -82,7 +78,9 @@ class ApacheBackend : HttpClientBackend {
             with(protocolVersion) {
                 version = ProtocolVersion(protocol, major, minor)
             }
-        }.build()
+        }
+
+        return if (entity.isStreaming) ReadChannelBody(entity.content.toReadChannel()) else EmptyBody
     }
 
     override fun close() {

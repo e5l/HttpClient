@@ -23,7 +23,7 @@ suspend fun full(client: HttpClient) {
         }
     }
 
-    println("${searchResults.statusCode} ${searchResults.bodyText()}")
+    println(searchResults.bodyText())
 
     val redditFrontJson = client.call {
         url {
