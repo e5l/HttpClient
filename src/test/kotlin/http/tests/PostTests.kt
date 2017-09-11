@@ -65,7 +65,9 @@ class PostTests : TestWithKtor() {
             headers { set(HttpHeaders.ContentType, ContentType.Text.Plain.withCharset(Charset.defaultCharset()).toString()) }
         }
 
-        val response = runBlocking { client.execute<String>(request, sendText) }
+        val response = runBlocking {
+            client.execute<String>(request, sendText)
+        }
         assert(response == sendText)
 
         client.close()

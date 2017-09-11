@@ -5,28 +5,25 @@ import http.call.HttpClientCall
 import http.pipeline.ClientScope
 import http.pipeline.buildRequestPipeline
 import http.pipeline.buildResponsePipeline
-import http.request.RequestBuilder
-import http.response.ResponseData
-import org.jetbrains.ktor.util.URLProtocol
+import http.request.RequestDataBuilder
 
-fun ClientScope.request(block: RequestBuilder.() -> Unit): HttpClientCall =
-        HttpClientCall(buildRequestPipeline(), buildResponsePipeline(), RequestBuilder().apply(block))
+fun ClientScope.request(block: RequestDataBuilder.() -> Unit): HttpClientCall =
+        HttpClientCall(buildRequestPipeline(), buildResponsePipeline(), RequestDataBuilder().apply(block))
 
-suspend inline fun <reified T> ClientScope.execute(builder: RequestBuilder, requestData: Any = Unit): T {
-    return HttpClientCall(buildRequestPipeline(), buildResponsePipeline(), builder).execute(requestData)
-}
+fun ClientScope.call(block: RequestDataBuilder.() -> Unit): HttpClientCall = request(block)
 
-suspend fun ClientScope.executeCall(requestData: Any, block: RequestBuilder.() -> Unit): ResponseData =
-        execute(RequestBuilder().apply(block), requestData)
+suspend inline fun <reified T> ClientScope.execute(builder: RequestDataBuilder, requestData: Any = Unit): T =
+        HttpClientCall(buildRequestPipeline(), buildResponsePipeline(), builder).execute(requestData)
 
-suspend fun ClientScope.get(
+suspend inline fun <reified T> ClientScope.executeCall(requestData: Any, block: RequestDataBuilder.() -> Unit): T =
+        execute(RequestDataBuilder().apply(block), requestData)
+
+suspend inline fun <reified T> ClientScope.get(
         host: String = "localhost",
         path: String = "",
         port: Int = 80,
         scheme: String = "http"
-): ResponseData = executeCall(Unit) {
+): T = executeCall(Unit) {
     url(host, port, path)
     this.scheme = scheme
 }
-
-suspend fun ClientScope.call(block: RequestBuilder.() -> Unit): HttpClientCall = TODO()

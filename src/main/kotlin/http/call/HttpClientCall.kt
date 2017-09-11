@@ -2,22 +2,22 @@ package http.call
 
 import http.request.*
 import http.response.*
+import org.jetbrains.ktor.http.RequestConnectionPoint
 import org.jetbrains.ktor.http.call.HttpCall
+import org.jetbrains.ktor.http.request.HttpRequest
+import org.jetbrains.ktor.http.response.HttpResponse
 import org.jetbrains.ktor.util.Attributes
 import org.jetbrains.ktor.util.ValuesMap
 
 class HttpClientCall(
         requestPipeline: RequestPipeline,
-        responsePipeline: HttpResponsePipeline,
-        val requestBuilder: RequestBuilder
-) : HttpCall {
-    override val request: Request by lazy {
-        requestBuilder.build(this, requestPipeline)
-    }
+        responsePipeline: ResponsePipeline,
+        val requestBuilder: RequestDataBuilder = RequestDataBuilder(),
+        val parameters: ValuesMap = ValuesMap.Empty
+) {
+    val request: Request = Request(this, requestPipeline)
 
-    override val response: Response = Response(this, responsePipeline)
+    val response: Response = Response(this, responsePipeline)
 
-    override val parameters: ValuesMap = ValuesMap.Empty
-
-    override val attributes: Attributes = Attributes()
+    val attributes: Attributes = Attributes()
 }

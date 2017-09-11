@@ -2,7 +2,7 @@ package http.features
 
 import http.pipeline.ClientScope
 import http.request.RequestPipeline
-import http.response.HttpResponsePipeline
+import http.response.ResponsePipeline
 import org.jetbrains.ktor.http.Cookie
 import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.http.parseServerSetCookieHeader
@@ -59,9 +59,10 @@ class Cookies(private val storage: CookiesStorage) {
                 }
             }
 
-            scope.responsePipeline.intercept(HttpResponsePipeline.Transform) { data ->
-                call.response.headers.getAll(HttpHeaders.SetCookie)?.map { parseServerSetCookieHeader(it) }?.forEach {
-                    cookies.storage[call.request.local.host] = it
+            scope.responsePipeline.intercept(ResponsePipeline.Transform) { data ->
+                val headers = call.response.data.headers
+                headers.getAll(HttpHeaders.SetCookie)?.map { parseServerSetCookieHeader(it) }?.forEach {
+                    cookies.storage[call.request.data.local.host] = it
                 }
             }
 

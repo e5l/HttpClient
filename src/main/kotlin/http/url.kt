@@ -1,9 +1,9 @@
 package http
 
-import http.request.RequestBuilder
+import http.request.RequestDataBuilder
 import org.jetbrains.ktor.util.URLBuilder
 
-fun RequestBuilder.url(
+fun RequestDataBuilder.url(
         host: String = "localhost",
         port: Int = 80,
         path: String = "",

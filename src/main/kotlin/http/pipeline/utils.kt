@@ -1,7 +1,7 @@
 package http.pipeline
 
 import http.request.RequestPipeline
-import http.response.HttpResponsePipeline
+import http.response.ResponsePipeline
 
 fun ClientScope.visit(
         before: (ClientScope) -> Unit = {},
@@ -16,7 +16,7 @@ fun ClientScope.visit(
     after(this)
 }
 
-fun ClientScope.buildResponsePipeline(): HttpResponsePipeline = HttpResponsePipeline().apply {
+fun ClientScope.buildResponsePipeline(): ResponsePipeline = ResponsePipeline().apply {
     visit(after = { merge(it.responsePipeline) })
 }
 

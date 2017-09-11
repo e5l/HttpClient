@@ -3,8 +3,8 @@ package http.backend.jvm
 import http.backend.HttpClientBackend
 import http.backend.HttpClientBackendFactory
 import http.common.*
-import http.request.Request
-import http.response.ResponseBuilder
+import http.request.RequestData
+import http.response.ResponseDataBuilder
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.RequestBuilder
@@ -26,29 +26,35 @@ class ApacheBackend : HttpClientBackend {
         backend.start()
     }
 
-    suspend override fun makeRequest(data: Request, builder: ResponseBuilder, requestData: Any): HttpMessageBody  {
+    suspend override fun makeRequest(data: RequestData, builder: ResponseDataBuilder, requestPayload: Any): HttpMessageBody {
         val apacheBuilder = RequestBuilder.create(data.local.method.value)
-        apacheBuilder.uri = URIBuilder().apply {
-        }.build()// (data.local.uri)
+        with(data) {
+            apacheBuilder.uri = URIBuilder().apply {
+                scheme = local.scheme
+                host = local.host
+                port = local.port
+                path = local.uri
+            }.build()
+        }
 
         data.headers.entries().forEach { (name, values) ->
             values.forEach { value -> apacheBuilder.addHeader(name, value) }
         }
 
-        when (requestData) {
-            is ReadChannelBody -> InputStreamEntity(requestData.channel.toInputStream())
+        when (requestPayload) {
+            is ReadChannelBody -> InputStreamEntity(requestPayload.channel.toInputStream())
             is WriteChannelBody -> {
                 val channel = ByteBufferWriteChannel()
-                requestData.block(channel)
+                requestPayload.block(channel)
                 ByteArrayEntity(channel.toByteArray())
             }
             else -> null
         }?.let { apacheBuilder.entity = it }
 
-        val request = apacheBuilder.build()
+        val apacheRequest = apacheBuilder.build()
 
         val response = suspendCancellableCoroutine<HttpResponse> { continuation ->
-            backend.execute(request, object : FutureCallback<HttpResponse> {
+            backend.execute(apacheRequest, object : FutureCallback<HttpResponse> {
                 override fun failed(exception: Exception) {
                     continuation.resumeWithException(exception)
                 }

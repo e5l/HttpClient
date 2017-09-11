@@ -24,13 +24,11 @@ fun HttpMessageBody.bodyText(charset: Charset = Charset.defaultCharset()): Strin
     }
 }
 
-// Todo: cache
 suspend fun HttpClientCall.bodyText(charset: Charset = Charset.defaultCharset())
         = execute<HttpMessageBody>().bodyText(charset)
 
-// Move to
 val Response.charset: Charset
-    get() = headers
+    get() = data.headers
             .getAll("Content-Type")
             ?.flatMap { it.split(";") }
             ?.find { it.contains("charset") }

@@ -1,7 +1,7 @@
 package http.pipeline
 
 import http.request.RequestPipeline
-import http.response.HttpResponsePipeline
+import http.response.ResponsePipeline
 import org.jetbrains.ktor.util.Attributes
 import java.io.Closeable
 
@@ -10,7 +10,7 @@ sealed class ClientScope : Closeable {
 
     abstract val parent: ClientScope
     abstract val requestPipeline: RequestPipeline
-    abstract val responsePipeline: HttpResponsePipeline
+    abstract val responsePipeline: ResponsePipeline
 }
 
 class EmptyScope : ClientScope() {
@@ -18,7 +18,7 @@ class EmptyScope : ClientScope() {
 
     override val parent = this
     override val requestPipeline = RequestPipeline()
-    override val responsePipeline = HttpResponsePipeline()
+    override val responsePipeline = ResponsePipeline()
 
     override fun close() {}
 }
@@ -30,5 +30,5 @@ open class CallScope(final override val parent: ClientScope) : ClientScope() {
 
     override val attributes = Attributes()
     override val requestPipeline = RequestPipeline()
-    override val responsePipeline = HttpResponsePipeline()
+    override val responsePipeline = ResponsePipeline()
 }
