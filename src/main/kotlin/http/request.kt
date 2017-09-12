@@ -26,4 +26,5 @@ suspend inline fun <reified T> ClientScope.get(
         scheme: String = "http"
 ): T = executeCall(Unit) {
     url(host, URLProtocol(scheme, port), path)
+    url.port = port
 }

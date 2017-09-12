@@ -1,13 +1,18 @@
 package http
 
 import http.backend.*
+import http.features.ClientScopeFeature
+import http.features.IgnoreBody
+import http.features.PlainText
+import http.features.install
 import http.pipeline.*
 import http.request.*
 import http.response.*
 
 class HttpClient(
         backendFactory: HttpClientBackendFactory,
-        block: HttpClient.() -> Unit = {}
+        block: HttpClient.() -> Unit = {},
+        defaultFeatures: List<ClientScopeFeature<Any, out Any>> = listOf(PlainText, IgnoreBody)
 ) : CallScope(EmptyScope()) {
     override val requestPipeline = RequestPipeline()
     override val responsePipeline = ResponsePipeline()
@@ -24,10 +29,13 @@ class HttpClient(
         }
 
         block()
+
+        defaultFeatures.forEach {
+            install(it)
+        }
     }
 
     override fun close() {
         backend.close()
     }
 }
-

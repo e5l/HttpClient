@@ -37,7 +37,7 @@ class RequestDataBuilder {
     }
 
     fun url(block: URLBuilder.() -> Unit) {
-        url.apply(block)
+        url.block()
     }
 
     fun build(): RequestData = RequestData(

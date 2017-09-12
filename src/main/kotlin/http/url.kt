@@ -7,8 +7,7 @@ import org.jetbrains.ktor.util.URLProtocol
 fun RequestDataBuilder.url(
         host: String = "localhost",
         port: Int = 80,
-        path: String = "",
-        additionalSettings: URLBuilder.() -> Unit = {}
+        path: String = ""
 ) {
     url {
         this.host = host
@@ -16,21 +15,16 @@ fun RequestDataBuilder.url(
         path(path)
     }
 
-    url(additionalSettings)
 }
 
 fun RequestDataBuilder.url(
         host: String = "localhost",
         protocol: URLProtocol,
-        path: String = "",
-        additionalSettings: URLBuilder.() -> Unit = {}
+        path: String = ""
 ) {
     url {
         this.host = host
-        this.port = port
         this.protocol = protocol
         path(path)
     }
-
-    url(additionalSettings)
 }

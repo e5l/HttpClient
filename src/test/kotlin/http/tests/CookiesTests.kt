@@ -53,7 +53,10 @@ class CookiesTests : TestWithKtor() {
             install(Cookies)
         }
 
-        val response = runBlocking { client.get<Unit>(HOST, port = 8080) }
+        val response = runBlocking {
+            client.get<Unit>(HOST, port = 8080)
+        }
+
         client.cookies(HOST).let {
             assert(it.size == 1)
             assert(it["hello-cookie"]!!.value == "my-awesome-value")

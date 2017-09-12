@@ -30,7 +30,6 @@ suspend fun full(client: HttpClient) {
             host = "reddit.com"
             path(".json")
             protocol = URLProtocol.HTTPS
-            port = 443
             method = HttpMethod.Get
         }
 

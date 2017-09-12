@@ -2,8 +2,6 @@ package http.tests
 
 import http.*
 import http.backend.jvm.ApacheBackend
-import http.features.PlainText
-import http.features.install
 import http.request.request
 import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking
@@ -53,9 +51,7 @@ class FullFormTests : TestWithKtor() {
 
     @Test
     fun testRequest() {
-        val client = HttpClient(ApacheBackend) {
-            install(PlainText)
-        }
+        val client = HttpClient(ApacheBackend)
 
         val request = request {
             url {

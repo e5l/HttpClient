@@ -2,18 +2,15 @@ package http.examples
 
 import http.*
 import http.backend.jvm.ApacheBackend
-import http.features.PlainText
-import http.features.install
 import http.request.request
 import kotlinx.coroutines.experimental.runBlocking
 
 suspend fun requests() {
-    val client = HttpClient(ApacheBackend) {
-        install(PlainText)
-    }
+    val client = HttpClient(ApacheBackend)
 
     val request = request {
-        url(host = "google.com") {
+        url(host = "google.com")
+        url {
             parameters["q"] = "Hello, world"
         }
     }

@@ -3,11 +3,10 @@ package http.tests
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
 import http.execute
-import http.features.PlainText
-import http.features.install
 import http.request.request
 import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking
+import org.jetbrains.ktor.application.ApplicationCall
 import org.jetbrains.ktor.content.readText
 import org.jetbrains.ktor.host.embeddedServer
 import org.jetbrains.ktor.http.ContentType
@@ -28,7 +27,8 @@ class PostTests : TestWithKtor() {
         routing {
             post("/") {
                 val content = call.request.receiveContent().readText()
-                assert(content.startsWith("Hello, post"))
+                println(content)
+                assert(content.startsWith("Hello, post"), { content })
                 call.respondText(content)
             }
         }
@@ -53,9 +53,7 @@ class PostTests : TestWithKtor() {
     }
 
     private fun postHelper(sendText: String) {
-        val client = HttpClient(ApacheBackend) {
-            install(PlainText)
-        }
+        val client = HttpClient(ApacheBackend)
 
         val request = request {
             url {

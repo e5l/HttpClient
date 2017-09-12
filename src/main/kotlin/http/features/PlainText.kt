@@ -9,8 +9,6 @@ import org.jetbrains.ktor.cio.toReadChannel
 import org.jetbrains.ktor.util.AttributeKey
 import java.nio.charset.Charset
 
-inline fun <reified T> Any?.safeAs(): T? = this as? T
-
 class PlainText {
     class Configuration
 
