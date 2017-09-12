@@ -6,6 +6,7 @@ import http.pipeline.ClientScope
 import http.pipeline.buildRequestPipeline
 import http.pipeline.buildResponsePipeline
 import http.request.RequestDataBuilder
+import org.jetbrains.ktor.util.URLProtocol
 
 fun ClientScope.request(block: RequestDataBuilder.() -> Unit): HttpClientCall =
         HttpClientCall(buildRequestPipeline(), buildResponsePipeline(), RequestDataBuilder().apply(block))
@@ -24,6 +25,5 @@ suspend inline fun <reified T> ClientScope.get(
         port: Int = 80,
         scheme: String = "http"
 ): T = executeCall(Unit) {
-    url(host, port, path)
-    this.scheme = scheme
+    url(host, URLProtocol(scheme, port), path)
 }

@@ -26,7 +26,6 @@ class RequestData(
 }
 
 class RequestDataBuilder {
-    var scheme: String = "http"
     var method = HttpMethod.Get
     val version: String = ""
 
@@ -48,7 +47,7 @@ class RequestDataBuilder {
                 override val method: HttpMethod = this@RequestDataBuilder.method
                 override val port: Int = url.port
                 override val remoteHost: String = url.host
-                override val scheme: String = this@RequestDataBuilder.scheme
+                override val scheme: String = url.protocol.name
                 override val uri: String = url.encodedPath
                 override val version: String = this@RequestDataBuilder.version
             },
