@@ -23,12 +23,13 @@ import java.util.*
 
 
 class PostTests : TestWithKtor() {
+    val BODY_PREFIX = "Hello, post"
+
     override val server = embeddedServer(Netty, 8080) {
         routing {
             post("/") {
                 val content = call.request.receiveContent().readText()
-                println(content)
-                assert(content.startsWith("Hello, post"), { content })
+                assert(content.startsWith(BODY_PREFIX))
                 call.respondText(content)
             }
         }
@@ -36,7 +37,7 @@ class PostTests : TestWithKtor() {
 
     @Test
     fun postString() {
-        postHelper("Hello, post")
+        postHelper(BODY_PREFIX)
     }
 
     @Test
@@ -49,7 +50,7 @@ class PostTests : TestWithKtor() {
             builder.append(random.nextInt(256).toChar())
         }
 
-        postHelper("Hello, post: $builder")
+        postHelper("$BODY_PREFIX: $builder")
     }
 
     private fun postHelper(sendText: String) {

@@ -1,12 +1,15 @@
 package http.features
 
 import http.bodyText
+import http.charset
+import http.common.HttpMessageBody
 import http.common.ReadChannelBody
 import http.pipeline.ClientScope
 import http.request.RequestPipeline
 import http.response.ResponsePipeline
 import org.jetbrains.ktor.cio.toReadChannel
 import org.jetbrains.ktor.util.AttributeKey
+import safeAs
 import java.nio.charset.Charset
 
 class PlainText {
@@ -17,11 +20,12 @@ class PlainText {
 
         override fun install(scope: ClientScope, configure: Configuration.() -> Unit): PlainText {
             scope.responsePipeline.intercept(ResponsePipeline.Transform) { container ->
-                if (container.expectedType != String::class) {
+                val response = container.response.safeAs<HttpMessageBody>() ?: return@intercept
+                if (container.expectedType != String::class)  {
                     return@intercept
                 }
 
-                val body = call.bodyText()
+                val body = response.bodyText(call.response.charset)
                 proceedWith(container.copy(response = body))
             }
 
