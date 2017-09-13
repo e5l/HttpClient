@@ -24,6 +24,4 @@ fun ClientScope.buildRequestPipeline(): RequestPipeline = RequestPipeline().appl
     visit(after = { merge(it.requestPipeline) })
 }
 
-fun ClientScope.config(block: ClientScope.() -> Unit): ClientScope {
-    return CallScope(this).apply(block)
-}
+fun ClientScope.config(block: ClientScope.() -> Unit): ClientScope = CallScope(this).apply(block)

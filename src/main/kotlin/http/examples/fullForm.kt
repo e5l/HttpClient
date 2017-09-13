@@ -23,7 +23,7 @@ suspend fun full(client: HttpClient) {
         }
     }
 
-    println("google: ${searchResults.bodyText()}")
+    println("google: ${searchResults.receiveText()}")
 
     val redditFrontJson = client.call {
         url {
@@ -41,7 +41,7 @@ suspend fun full(client: HttpClient) {
         }
     }
 
-    println("reddit: ${redditFrontJson.bodyText()}")
+    println("reddit: ${redditFrontJson.receiveText()}")
 }
 
 fun main(args: Array<String>) {

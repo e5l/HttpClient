@@ -2,7 +2,9 @@ package http.tests
 
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
+import http.call.call
 import http.makeRequest
+import http.post
 import http.request.request
 import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking
@@ -52,21 +54,15 @@ class PostTests : TestWithKtor() {
         postHelper("$BODY_PREFIX: $builder")
     }
 
-    private fun postHelper(sendText: String) {
+    private fun postHelper(test: String) {
         val client = HttpClient(ApacheBackend)
 
-        val requestBuilder = request {
-            url {
-                port = 8080
-            }
-            method = HttpMethod.Post
-            headers.contentType(ContentType.Text.Plain.withCharset(Charset.defaultCharset()))
-        }
-
         val response = runBlocking {
-            client.makeRequest<String>(sendText, requestBuilder)
+            client.post<String>(port = 8080, payload = test) {
+                headers.contentType(ContentType.Text.Plain.withCharset(Charset.defaultCharset()))
+            }
         }
-        assert(response == sendText)
+        assert(response == test)
 
         client.close()
     }

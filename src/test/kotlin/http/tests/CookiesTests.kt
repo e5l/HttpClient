@@ -22,8 +22,6 @@ import org.junit.Test
 
 
 class CookiesTests : TestWithKtor() {
-    private val HOST = "localhost"
-
     override val server: ApplicationHost = embeddedServer(Netty, 8080) {
         routing {
             get("/") {
@@ -53,9 +51,9 @@ class CookiesTests : TestWithKtor() {
             install(Cookies)
         }
 
-        runBlocking { client.get<Unit>(HOST, port = 8080) }
+        runBlocking { client.get<Unit>(port = 8080) }
 
-        client.cookies(HOST).let {
+        client.cookies("localhost").let {
             assert(it.size == 1)
             assert(it["hello-cookie"]!!.value == "my-awesome-value")
         }
@@ -67,11 +65,11 @@ class CookiesTests : TestWithKtor() {
     fun testUpdate() {
         val client = HttpClient(ApacheBackend).config {
             install(Cookies) {
-                set(HOST, Cookie("id", "1"))
+                set("localhost", Cookie("id", "1"))
             }
         }
 
-        fun getId() = client.cookies(HOST)["id"]?.value?.toInt()!!
+        fun getId() = client.cookies("localhost")["id"]?.value?.toInt()!!
 
         for (i in 1..10) {
             val before = getId()

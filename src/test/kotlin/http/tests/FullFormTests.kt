@@ -42,7 +42,7 @@ class FullFormTests : TestWithKtor() {
                     path("hello")
                     method = HttpMethod.Get
                 }
-            }.bodyText()
+            }.receiveText()
 
             assert(text == "Hello, world")
         }
