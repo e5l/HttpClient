@@ -2,12 +2,13 @@ package http.tests
 
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
-import http.features.Cookies
-import http.features.cookies
+import http.features.cookies.*
+import http.features.feature
 import http.features.install
 import http.get
 import http.pipeline.config
 import http.tests.utils.TestWithKtor
+import http.utils.safeAs
 import kotlinx.coroutines.experimental.runBlocking
 import org.jetbrains.ktor.host.ApplicationHost
 import org.jetbrains.ktor.host.embeddedServer
@@ -65,7 +66,9 @@ class CookiesTests : TestWithKtor() {
     fun testUpdate() {
         val client = HttpClient(ApacheBackend).config {
             install(Cookies) {
-                set("localhost", Cookie("id", "1"))
+                default {
+                    set("localhost", Cookie("id", "1"))
+                }
             }
         }
 
@@ -78,6 +81,20 @@ class CookiesTests : TestWithKtor() {
         }
 
         client.close()
+    }
+
+    @Test
+    fun testConstant() {
+        val client = HttpClient(ApacheBackend).config {
+            install(Cookies) {
+                storage = ConstantCookieStorage(Cookie("id", "1"))
+            }
+        }
+
+        fun getId() = client.cookies("localhost")["id"]?.value?.toInt()!!
+        runBlocking { client.get<Unit>(path = "update-user-id", port = 8080) }
+
+        assert(getId() == 1)
     }
 }
 
