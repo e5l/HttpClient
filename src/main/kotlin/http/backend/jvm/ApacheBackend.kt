@@ -34,6 +34,7 @@ class ApacheBackend : HttpClientBackend {
                 host = local.host
                 port = local.port
                 path = local.uri
+                data.queryParameters.forEach { key, values -> values.forEach { value -> addParameter(key, value) } }
             }.build()
         }
 

@@ -1,5 +1,8 @@
 package http.call
 
+import http.pipeline.ClientScope
+import http.pipeline.buildRequestPipeline
+import http.pipeline.buildResponsePipeline
 import http.request.*
 import http.response.*
 import org.jetbrains.ktor.http.RequestConnectionPoint
@@ -21,3 +24,9 @@ class HttpClientCall(
 
     val attributes: Attributes = Attributes()
 }
+
+fun ClientScope.call(builder: RequestDataBuilder): HttpClientCall =
+        HttpClientCall(buildRequestPipeline(), buildResponsePipeline(), builder)
+
+fun ClientScope.call(block: RequestDataBuilder.() -> Unit): HttpClientCall =
+        call(RequestDataBuilder().apply(block))

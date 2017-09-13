@@ -2,18 +2,17 @@ package http.tests
 
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
-import http.execute
+import http.makeRequest
 import http.request.request
 import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking
-import org.jetbrains.ktor.application.ApplicationCall
 import org.jetbrains.ktor.content.readText
 import org.jetbrains.ktor.host.embeddedServer
 import org.jetbrains.ktor.http.ContentType
-import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.http.HttpMethod
 import org.jetbrains.ktor.http.withCharset
 import org.jetbrains.ktor.netty.Netty
+import org.jetbrains.ktor.response.contentType
 import org.jetbrains.ktor.response.respondText
 import org.jetbrains.ktor.routing.post
 import org.jetbrains.ktor.routing.routing
@@ -56,16 +55,16 @@ class PostTests : TestWithKtor() {
     private fun postHelper(sendText: String) {
         val client = HttpClient(ApacheBackend)
 
-        val request = request {
+        val requestBuilder = request {
             url {
                 port = 8080
             }
             method = HttpMethod.Post
-            headers { set(HttpHeaders.ContentType, ContentType.Text.Plain.withCharset(Charset.defaultCharset()).toString()) }
+            headers.contentType(ContentType.Text.Plain.withCharset(Charset.defaultCharset()))
         }
 
         val response = runBlocking {
-            client.execute<String>(request, sendText)
+            client.makeRequest<String>(sendText, requestBuilder)
         }
         assert(response == sendText)
 

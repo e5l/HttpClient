@@ -2,6 +2,7 @@ package http.tests
 
 import http.*
 import http.backend.jvm.ApacheBackend
+import http.call.call
 import http.request.request
 import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking
@@ -53,7 +54,7 @@ class FullFormTests : TestWithKtor() {
     fun testRequest() {
         val client = HttpClient(ApacheBackend)
 
-        val request = request {
+        val requestBuilder = request {
             url {
                 host = "localhost"
                 protocol = URLProtocol.HTTP
@@ -63,7 +64,7 @@ class FullFormTests : TestWithKtor() {
             }
         }
 
-        val body = runBlocking { client.execute<String>(request) }
+        val body = runBlocking { client.makeRequest<String>(requestBuilder) }
         assert(body == "Hello, world")
     }
 }

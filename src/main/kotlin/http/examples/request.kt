@@ -8,15 +8,16 @@ import kotlinx.coroutines.experimental.runBlocking
 suspend fun requests() {
     val client = HttpClient(ApacheBackend)
 
-    val request = request {
+    val requestBuilder = request {
         url(host = "google.com")
         url {
             parameters["q"] = "Hello, world"
         }
     }
 
-    val response = client.execute<String>(request)
+    val response = client.makeRequest<String>(requestBuilder)
     println(response)
+
     client.close()
 }
 

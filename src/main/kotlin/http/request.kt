@@ -1,30 +1,38 @@
 package http
 
-import execute
 import http.call.HttpClientCall
 import http.pipeline.ClientScope
 import http.pipeline.buildRequestPipeline
 import http.pipeline.buildResponsePipeline
 import http.request.RequestDataBuilder
-import org.jetbrains.ktor.util.URLProtocol
+import http.response.makeResponse
 
-fun ClientScope.request(block: RequestDataBuilder.() -> Unit): HttpClientCall =
-        HttpClientCall(buildRequestPipeline(), buildResponsePipeline(), RequestDataBuilder().apply(block))
+inline suspend fun <reified T> HttpClientCall.makeRequest(requestData: Any = Unit): T =
+        request.pipeline.execute(this, requestData).let { responseData ->
+            makeResponse<T>(responseData).response as? T
+        } ?: error("Fail to process call: $this \n" + "Expected type: ${T::class}")
 
-fun ClientScope.call(block: RequestDataBuilder.() -> Unit): HttpClientCall = request(block)
+suspend inline fun <reified T> ClientScope.makeRequest(requestData: Any, builder: RequestDataBuilder): T =
+        HttpClientCall(
+                buildRequestPipeline(),
+                buildResponsePipeline(),
+                builder
+        ).makeRequest(requestData)
 
-suspend inline fun <reified T> ClientScope.execute(builder: RequestDataBuilder, requestData: Any = Unit): T =
-        HttpClientCall(buildRequestPipeline(), buildResponsePipeline(), builder).execute(requestData)
+suspend inline fun <reified T> ClientScope.makeRequest(requestData: Any, block: RequestDataBuilder.() -> Unit): T =
+        makeRequest(requestData, RequestDataBuilder().apply(block))
 
-suspend inline fun <reified T> ClientScope.executeCall(requestData: Any, block: RequestDataBuilder.() -> Unit): T =
-        execute(RequestDataBuilder().apply(block), requestData)
+suspend inline fun <reified T> ClientScope.makeRequest(block: RequestDataBuilder.() -> Unit): T =
+        makeRequest(Unit, block)
+
+suspend inline fun <reified T> ClientScope.makeRequest(builder: RequestDataBuilder): T =
+        makeRequest(Unit, builder)
 
 suspend inline fun <reified T> ClientScope.get(
         host: String = "localhost",
         path: String = "",
         port: Int = 80,
         scheme: String = "http"
-): T = executeCall(Unit) {
-    url(host, URLProtocol(scheme, port), path)
-    url.port = port
+): T = makeRequest(Unit) {
+    url(scheme, host, port, path)
 }

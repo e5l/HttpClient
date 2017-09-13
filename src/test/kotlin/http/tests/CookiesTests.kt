@@ -53,9 +53,7 @@ class CookiesTests : TestWithKtor() {
             install(Cookies)
         }
 
-        val response = runBlocking {
-            client.get<Unit>(HOST, port = 8080)
-        }
+        runBlocking { client.get<Unit>(HOST, port = 8080) }
 
         client.cookies(HOST).let {
             assert(it.size == 1)
@@ -77,7 +75,7 @@ class CookiesTests : TestWithKtor() {
 
         for (i in 1..10) {
             val before = getId()
-            val response = runBlocking { client.get<Unit>(path = "update-user-id", port = 8080) }
+            runBlocking { client.get<Unit>(path = "update-user-id", port = 8080) }
             assert(getId() == before + 1)
         }
 

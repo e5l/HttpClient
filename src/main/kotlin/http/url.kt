@@ -18,13 +18,15 @@ fun RequestDataBuilder.url(
 }
 
 fun RequestDataBuilder.url(
+        scheme: String = "http",
         host: String = "localhost",
-        protocol: URLProtocol,
+        port: Int = 80,
         path: String = ""
 ) {
     url {
         this.host = host
-        this.protocol = protocol
+        this.protocol = URLProtocol(scheme, port)
+        this.port = port
         path(path)
     }
 }

@@ -10,13 +10,14 @@ import kotlinx.coroutines.experimental.runBlocking
 abstract class HttpConnection(parent: ClientScope) : CallScope(parent)
 
 suspend fun connect() {
-    val client = HttpClient(ApacheBackend)
+    HttpClient(ApacheBackend).use { client ->
 
-    val request = request {
-        url(host = "api.github.com")
+        val requestBuilder = request {
+            url(host = "api.github.com")
+        }
+
+        val connection = client.makeRequest<HttpConnection>(requestBuilder)
     }
-
-    val connection = client.execute<HttpConnection>(request)
 }
 
 fun main(args: Array<String>) {

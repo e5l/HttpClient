@@ -42,9 +42,7 @@ class Cookies(private val storage: CookiesStorage) {
             storage[host] = cookie
         }
 
-        fun build(): Cookies {
-            return Cookies(storage)
-        }
+        fun build(): Cookies = Cookies(storage)
     }
 
     companion object Feature : ClientScopeFeature<Configuration, Cookies> {
@@ -53,13 +51,13 @@ class Cookies(private val storage: CookiesStorage) {
         override fun install(scope: ClientScope, configure: Configuration.() -> Unit): Cookies {
             val cookies = Configuration().apply(configure).build()
 
-            scope.requestPipeline.intercept(RequestPipeline.State) { data ->
+            scope.requestPipeline.intercept(RequestPipeline.State) {
                 cookies.storage[call.requestBuilder.url.host]?.values?.forEach {
                     call.requestBuilder.headers.append(HttpHeaders.Cookie, renderSetCookieHeader(it))
                 }
             }
 
-            scope.responsePipeline.intercept(ResponsePipeline.Transform) { data ->
+            scope.responsePipeline.intercept(ResponsePipeline.Transform) {
                 val headers = call.response.data.headers
                 headers.getAll(HttpHeaders.SetCookie)?.map { parseServerSetCookieHeader(it) }?.forEach {
                     cookies.storage[call.request.data.local.host] = it

@@ -1,6 +1,5 @@
 package http
 
-import execute
 import http.call.HttpClientCall
 import http.common.EmptyBody
 import http.common.HttpMessageBody
@@ -14,8 +13,7 @@ import java.nio.charset.Charset
 fun HttpMessageBody.bodyText(charset: Charset = Charset.defaultCharset()): String {
     return when (this) {
         is WriteChannelBody -> {
-            val channel = ByteBufferWriteChannel()
-            block(channel)
+            val channel = ByteBufferWriteChannel().apply(block)
             channel.toString(charset)
         }
         is ReadChannelBody -> InputStreamReader(channel.toInputStream(), charset).readText()
@@ -23,5 +21,4 @@ fun HttpMessageBody.bodyText(charset: Charset = Charset.defaultCharset()): Strin
     }
 }
 
-suspend fun HttpClientCall.bodyText(charset: Charset = Charset.defaultCharset())
-        = execute<HttpMessageBody>().bodyText(charset)
+suspend fun HttpClientCall.bodyText(): String = makeRequest<String>()
