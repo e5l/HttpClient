@@ -1,7 +1,7 @@
 package http
 
 import http.request.RequestDataBuilder
-import org.jetbrains.ktor.util.URLProtocol
+import org.jetbrains.ktor.http.util.URLProtocol
 
 
 fun RequestDataBuilder.url(

@@ -1,14 +1,16 @@
 package http.examples
 
-import http.*
+import http.HttpClient
 import http.backend.jvm.ApacheBackend
 import http.call.call
+import http.receiveText
+import http.request.userAgent
 import kotlinx.coroutines.experimental.runBlocking
 import org.jetbrains.ktor.http.ContentType
 import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.http.HttpMethod
+import org.jetbrains.ktor.http.util.URLProtocol
 import org.jetbrains.ktor.response.contentType
-import org.jetbrains.ktor.util.URLProtocol
 
 suspend fun full(client: HttpClient) {
     val searchResults = client.call {
@@ -36,10 +38,21 @@ suspend fun full(client: HttpClient) {
 
         headers {
             contentType(ContentType.Application.Json)
-            append(HttpHeaders.UserAgent, "Kotlin HttpClient")
+            userAgent("Kotlin HttpClient")
             append(HttpHeaders.SetCookie, "name=vasya")
         }
     }
+
+//    redditFrontJson.isSuccess()
+//    redditFrontJson.statusCode
+//    redditFrontJson.request.scheme
+//    redditFrontJson.request.method
+//    redditFrontJson.remote.ip
+//    redditFrontJson.remote.port
+//    redditFrontJson.request.uri
+//    redditFrontJson.request.parameters
+//    redditFrontJson.response.charset
+//    redditFrontJson.request.formParameters<LoginForm>()
 
     println("reddit: ${redditFrontJson.receiveText()}")
 }

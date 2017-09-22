@@ -1,6 +1,9 @@
 package http.features
 
-import http.common.*
+import http.common.EmptyBody
+import http.common.HttpMessageBody
+import http.common.ReadChannelBody
+import http.common.WriteChannelBody
 import http.pipeline.ClientScope
 import http.request.RequestPipeline
 import http.response.ResponsePipeline
@@ -8,7 +11,11 @@ import http.utils.safeAs
 import org.jetbrains.ktor.cio.ByteBufferWriteChannel
 import org.jetbrains.ktor.cio.toInputStream
 import org.jetbrains.ktor.cio.toReadChannel
+import org.jetbrains.ktor.http.ContentType
+import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.http.request.contentCharset
+import org.jetbrains.ktor.http.withCharset
+import org.jetbrains.ktor.response.contentType
 import org.jetbrains.ktor.util.AttributeKey
 import java.io.InputStreamReader
 import java.nio.charset.Charset
@@ -46,9 +53,14 @@ class PlainText(val config: Configuration) {
             scope.requestPipeline.intercept(RequestPipeline.Content) { requestData ->
                 val requestString = requestData.safeAs<String>() ?: return@intercept
 
-                val charset = call.request.data.contentCharset() ?: Charset.defaultCharset()
-                val payload = requestString.toByteArray(charset).toReadChannel()
-                proceedWith(ReadChannelBody(payload))
+                val charset = call.request.data.contentCharset() ?: config.defaultCharset
+                val payload = requestString.toByteArray(charset)
+
+                with(call.requestBuilder.headers) {
+                    get(HttpHeaders.ContentType) ?: contentType(ContentType.Text.Plain.withCharset(charset))
+                }
+
+                proceedWith(ReadChannelBody(payload.toReadChannel()))
             }
 
             return PlainText(config)

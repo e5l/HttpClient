@@ -2,13 +2,14 @@ package http.tests
 
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
-import http.features.cookies.*
-import http.features.feature
+import http.features.cookies.ConstantCookieStorage
+import http.features.cookies.Cookies
+import http.features.cookies.cookies
 import http.features.install
 import http.get
+import http.pipeline.ClientScope
 import http.pipeline.config
 import http.tests.utils.TestWithKtor
-import http.utils.safeAs
 import kotlinx.coroutines.experimental.runBlocking
 import org.jetbrains.ktor.host.ApplicationHost
 import org.jetbrains.ktor.host.embeddedServer
@@ -72,12 +73,10 @@ class CookiesTests : TestWithKtor() {
             }
         }
 
-        fun getId() = client.cookies("localhost")["id"]?.value?.toInt()!!
-
         for (i in 1..10) {
-            val before = getId()
+            val before = client.getId()
             runBlocking { client.get<Unit>(path = "update-user-id", port = 8080) }
-            assert(getId() == before + 1)
+            assert(client.getId() == before + 1)
         }
 
         client.close()
@@ -91,10 +90,60 @@ class CookiesTests : TestWithKtor() {
             }
         }
 
-        fun getId() = client.cookies("localhost")["id"]?.value?.toInt()!!
         runBlocking { client.get<Unit>(path = "update-user-id", port = 8080) }
 
-        assert(getId() == 1)
+        assert(client.getId() == 1)
     }
+
+    @Test
+    fun multipleClients() {
+        /* a -> b
+         * |    |
+         * c    d
+         */
+        val a = HttpClient(ApacheBackend).config { install(Cookies) { default { set("localhost", Cookie("id", "1")) } } }
+        val b = a.config { install(Cookies) { default { set("localhost", Cookie("id", "10")) } } }
+        val c = a.config { }
+        val d = b.config { }
+
+        runBlocking {
+            a.get<Unit>(path = "update-user-id", port = 8080)
+        }
+
+        assert(a.getId() == 2)
+        assert(c.getId() == 2)
+        assert(b.getId() == 10)
+        assert(d.getId() == 10)
+
+        runBlocking {
+            b.get<Unit>(path = "update-user-id", port = 8080)
+        }
+
+        assert(a.getId() == 2, { a.getId() })
+        assert(c.getId() == 2)
+        assert(b.getId() == 11)
+        assert(d.getId() == 11)
+
+        runBlocking {
+            c.get<Unit>(path = "update-user-id", port = 8080)
+        }
+
+        assert(a.getId() == 3)
+        assert(c.getId() == 3)
+        assert(b.getId() == 11)
+        assert(d.getId() == 11)
+
+        runBlocking {
+            d.get<Unit>(path = "update-user-id", port = 8080)
+        }
+
+        assert(a.getId() == 3)
+        assert(c.getId() == 3)
+        assert(b.getId() == 12)
+        assert(d.getId() == 12)
+
+    }
+
+    private fun ClientScope.getId() = cookies("localhost")["id"]?.value?.toInt()!!
 }
 

@@ -4,7 +4,7 @@ import http.call.HttpClientCall
 import org.jetbrains.ktor.http.HttpMethod
 import org.jetbrains.ktor.http.RequestConnectionPoint
 import org.jetbrains.ktor.http.request.HttpRequest
-import org.jetbrains.ktor.util.URLBuilder
+import org.jetbrains.ktor.http.util.URLBuilder
 import org.jetbrains.ktor.util.ValuesMap
 import org.jetbrains.ktor.util.ValuesMapBuilder
 
