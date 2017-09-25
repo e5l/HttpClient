@@ -39,18 +39,18 @@ class Cookies(private val storage: CookiesStorage) {
         override fun install(scope: ClientScope, configure: Configuration.() -> Unit): Cookies {
             val cookies = Configuration().apply(configure).build()
 
-            // TODO: state mutation
             scope.requestPipeline.intercept(RequestPipeline.State) {
-//                val host = call.request.url.host
-//                cookies.forEach(host) {
-//                    call.requestData.headers.append(HttpHeaders.Cookie, renderSetCookieHeader(it))
-//                }
+                val host = call.request.data.url.host
+                cookies.forEach(host) {
+                    TODO("mutate request")
+//                    call.request.data.headers.append(HttpHeaders.Cookie, renderSetCookieHeader(it))
+                }
             }
 
             scope.responsePipeline.intercept(ResponsePipeline.Transform) {
                 val headers = call.response.data.headers
-                headers.getAll(HttpHeaders.SetCookie)?.map { parseServerSetCookieHeader(it) }?.forEach {
-//                    cookies.storage[call.requestBuilder.url.host] = it
+                headers[HttpHeaders.SetCookie]?.map { parseServerSetCookieHeader(it) }?.forEach {
+                    cookies.storage[call.request.data.url.host] = it
                 }
             }
 

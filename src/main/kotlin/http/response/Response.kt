@@ -2,10 +2,9 @@ package http.response
 
 import http.call.HttpClientCall
 import http.common.ProtocolVersion
+import http.request.Headers
+import http.request.HeadersBuilder
 import org.jetbrains.ktor.http.HttpStatusCode
-import org.jetbrains.ktor.http.response.HttpResponse
-import org.jetbrains.ktor.util.ValuesMap
-import org.jetbrains.ktor.util.ValuesMapBuilder
 
 class Response(val call: HttpClientCall, val pipeline: ResponsePipeline) {
     lateinit var data: ResponseData
@@ -19,26 +18,20 @@ class ResponseData(
         val statusCode: HttpStatusCode,
         val reason: String,
         val version: ProtocolVersion,
-        override val headers: ValuesMap
-
-) : HttpResponse
+        val headers: Headers
+)
 
 class ResponseDataBuilder {
     lateinit var statusCode: HttpStatusCode
     lateinit var reason: String
     lateinit var version: ProtocolVersion
 
-    private val headersBuilder = ValuesMapBuilder()
+    private val headersBuilder = HeadersBuilder()
 
-    fun headers(block: ValuesMapBuilder.() -> Unit) {
+    fun headers(block: HeadersBuilder.() -> Unit) {
         headersBuilder.apply(block)
     }
 
-    fun build(): ResponseData = ResponseData(
-            statusCode, reason, version, // status line
-            headersBuilder.build()
-    )
+    fun build(): ResponseData = ResponseData(statusCode, reason, version, headersBuilder.build())
 }
 
-inline suspend fun <reified T> HttpClientCall.makeResponse(responseData: Any): ResponseContainer =
-        response.pipeline.execute(this, ResponseContainer(T::class, responseData))

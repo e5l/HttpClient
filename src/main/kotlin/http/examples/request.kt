@@ -13,7 +13,7 @@ suspend fun requests() {
     val requestBuilder = request {
         url(host = "google.com")
         url {
-            parameters["q"] = "Hello, world"
+            queryParameters["q"] = "Hello, world"
         }
     }
 

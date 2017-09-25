@@ -6,6 +6,8 @@ class Parameters {
 
 class ParametersBuilder {
     fun append(key: String, value: String) {}
+    operator fun set(key: String, value: String) {}
+    operator fun set(key: String, value: List<String>) {}
 }
 
 class Url(

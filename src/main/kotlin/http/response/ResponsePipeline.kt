@@ -12,3 +12,6 @@ class ResponsePipeline : Pipeline<ResponseContainer, HttpClientCall>(Transform) 
         val Transform = PipelinePhase("Transform")
     }
 }
+
+inline suspend fun <reified T> HttpClientCall.makeResponse(responseData: Any): ResponseContainer =
+        response.pipeline.execute(this, ResponseContainer(T::class, responseData))

@@ -6,11 +6,13 @@ import http.common.ReadChannelBody
 import http.common.WriteChannelBody
 import http.pipeline.ClientScope
 import http.request.RequestPipeline
+import http.request.charset
 import http.response.ResponsePipeline
 import http.utils.safeAs
 import org.jetbrains.ktor.cio.ByteBufferWriteChannel
 import org.jetbrains.ktor.cio.toInputStream
-import org.jetbrains.ktor.http.request.contentCharset
+import org.jetbrains.ktor.cio.toReadChannel
+import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.util.AttributeKey
 import java.io.InputStreamReader
 import java.nio.charset.Charset
@@ -32,7 +34,7 @@ class PlainText(val config: Configuration) {
                     return@intercept
                 }
 
-                val charset = call.response.data.contentCharset() ?: config.defaultCharset
+                val charset = call.response.data.headers.charset() ?: config.defaultCharset
                 val body = when (payload) {
                     is WriteChannelBody -> {
                         val channel = ByteBufferWriteChannel().apply(payload.block)
@@ -48,14 +50,14 @@ class PlainText(val config: Configuration) {
             scope.requestPipeline.intercept(RequestPipeline.Content) { requestData ->
                 val requestString = requestData.safeAs<String>() ?: return@intercept
 
-//                val charset = call.request.data.headers.charset() ?: config.defaultCharset
-//                val payload = requestString.toByteArray(charset)
+                val charset = call.request.data.headers.charset() ?: config.defaultCharset
+                val payload = requestString.toByteArray(charset)
 
                 with(call.request.data.headers) {
-//                    get(HttpHeaders.ContentType) ?: contentType(ContentType.Text.Plain.withCharset(charset))
+                    get(HttpHeaders.ContentType) ?: TODO() // contentType(ContentType.Text.Plain.withCharset(charset))
                 }
 
-//                proceedWith(ReadChannelBody(payload.toReadChannel()))
+                proceedWith(ReadChannelBody(payload.toReadChannel()))
             }
 
             return PlainText(config)
