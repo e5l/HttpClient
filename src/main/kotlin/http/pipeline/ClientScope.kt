@@ -24,11 +24,14 @@ class EmptyScope : ClientScope() {
 }
 
 open class CallScope(final override val parent: ClientScope) : ClientScope() {
-    override fun close() {
-        parent.close()
-    }
+    override fun close() {}
 
     override val attributes = Attributes()
-    override val requestPipeline = RequestPipeline()
-    override val responsePipeline = ResponsePipeline()
+    override val requestPipeline: RequestPipeline = RequestPipeline().apply {
+        merge(parent.requestPipeline)
+    }
+
+    override val responsePipeline: ResponsePipeline = ResponsePipeline().apply {
+        merge(parent.responsePipeline)
+    }
 }

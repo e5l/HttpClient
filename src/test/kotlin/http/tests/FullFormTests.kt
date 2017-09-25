@@ -10,7 +10,6 @@ import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking
 import org.jetbrains.ktor.host.embeddedServer
 import org.jetbrains.ktor.http.HttpMethod
-import org.jetbrains.ktor.http.util.URLProtocol
 import org.jetbrains.ktor.netty.Netty
 import org.jetbrains.ktor.request.receive
 import org.jetbrains.ktor.response.respondText
@@ -38,10 +37,10 @@ class FullFormTests : TestWithKtor() {
         runBlocking {
             val text = client.call {
                 url {
+                    scheme = "http"
                     host = "localhost"
-                    protocol = URLProtocol.HTTP
                     port = 8080
-                    path("hello")
+                    path = "hello"
                     method = HttpMethod.Get
                 }
             }.receiveText()
@@ -59,9 +58,9 @@ class FullFormTests : TestWithKtor() {
         val requestBuilder = request {
             url {
                 host = "localhost"
-                protocol = URLProtocol.HTTP
+                scheme = "http"
                 port = 8080
-                path("hello")
+                path = "hello"
                 method = HttpMethod.Get
             }
         }

@@ -1,9 +1,9 @@
 package http
 
 import http.call.HttpClientCall
+import http.features.FormData
+import http.features.FormType
 import http.pipeline.ClientScope
-import http.pipeline.buildRequestPipeline
-import http.pipeline.buildResponsePipeline
 import http.request.RequestDataBuilder
 import http.response.makeResponse
 import http.utils.safeAs
@@ -15,7 +15,7 @@ inline suspend fun <reified T> HttpClientCall.makeRequest(requestData: Any = Uni
         } ?: error("Fail to process call: $this \n" + "Expected type: ${T::class}")
 
 suspend inline fun <reified T> ClientScope.makeRequest(requestData: Any, builder: RequestDataBuilder): T =
-        HttpClientCall(buildRequestPipeline(), buildResponsePipeline(), builder).makeRequest(requestData)
+        HttpClientCall(this, builder.build()).makeRequest(requestData)
 
 suspend inline fun <reified T> ClientScope.makeRequest(requestData: Any, block: RequestDataBuilder.() -> Unit): T =
         makeRequest(requestData, RequestDataBuilder().apply(block))
@@ -60,3 +60,8 @@ suspend inline fun <reified T> ClientScope.post(
         payload: Any = Unit
 ): T = post(scheme, host, port, path, payload, {})
 
+suspend inline fun <reified T> HttpClientCall.submit(
+        formData: Any,
+        type: FormType = FormType.URL_ENCODED,
+        method: HttpMethod = HttpMethod.Get
+): T = makeRequest(FormData(formData, type, method))

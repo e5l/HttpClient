@@ -2,7 +2,6 @@ package http.features
 
 import http.pipeline.ClientScope
 import http.pipeline.EmptyScope
-import org.jetbrains.ktor.application.DuplicateApplicationFeatureException
 import org.jetbrains.ktor.util.AttributeKey
 import org.jetbrains.ktor.util.Attributes
 
@@ -53,3 +52,5 @@ fun <B : Any, F : Any> ClientScope.feature(feature: ClientScopeFeature<B, F>): F
 
     error("Feature not found: ${feature.key}")
 }
+
+class DuplicateApplicationFeatureException(message: String) : Exception(message)

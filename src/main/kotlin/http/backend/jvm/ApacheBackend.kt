@@ -27,14 +27,14 @@ class ApacheBackend : HttpClientBackend {
     }
 
     suspend override fun makeRequest(data: RequestData, builder: ResponseDataBuilder, requestPayload: Any): HttpMessageBody {
-        val apacheBuilder = RequestBuilder.create(data.local.method.value)
+        val apacheBuilder = RequestBuilder.create(data.method.value)
         with(data) {
             apacheBuilder.uri = URIBuilder().apply {
-                scheme = local.scheme
-                host = local.host
-                port = local.port
-                path = local.uri
-                data.queryParameters.forEach { key, values -> values.forEach { value -> addParameter(key, value) } }
+                scheme = url.scheme
+                host = url.host
+                port = url.port
+                path = url.path
+                url.queryParameters.entries().forEach { (key, value) ->  addParameter(key, value) }
             }.build()
         }
 

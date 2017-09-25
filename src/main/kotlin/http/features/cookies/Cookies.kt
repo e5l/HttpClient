@@ -5,7 +5,9 @@ import http.features.feature
 import http.pipeline.ClientScope
 import http.request.RequestPipeline
 import http.response.ResponsePipeline
-import org.jetbrains.ktor.http.*
+import org.jetbrains.ktor.http.Cookie
+import org.jetbrains.ktor.http.HttpHeaders
+import org.jetbrains.ktor.http.parseServerSetCookieHeader
 import org.jetbrains.ktor.util.AttributeKey
 
 class Cookies(private val storage: CookiesStorage) {
@@ -37,17 +39,18 @@ class Cookies(private val storage: CookiesStorage) {
         override fun install(scope: ClientScope, configure: Configuration.() -> Unit): Cookies {
             val cookies = Configuration().apply(configure).build()
 
+            // TODO: state mutation
             scope.requestPipeline.intercept(RequestPipeline.State) {
-                val host = call.requestBuilder.url.host
-                cookies.forEach(host) {
-                    call.requestBuilder.headers.append(HttpHeaders.Cookie, renderSetCookieHeader(it))
-                }
+//                val host = call.request.url.host
+//                cookies.forEach(host) {
+//                    call.requestData.headers.append(HttpHeaders.Cookie, renderSetCookieHeader(it))
+//                }
             }
 
             scope.responsePipeline.intercept(ResponsePipeline.Transform) {
                 val headers = call.response.data.headers
                 headers.getAll(HttpHeaders.SetCookie)?.map { parseServerSetCookieHeader(it) }?.forEach {
-                    cookies.storage[call.requestBuilder.url.host] = it
+//                    cookies.storage[call.requestBuilder.url.host] = it
                 }
             }
 

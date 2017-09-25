@@ -4,24 +4,22 @@ import http.HttpClient
 import http.backend.jvm.ApacheBackend
 import http.call.call
 import http.receiveText
+import http.request.contentType
 import http.request.userAgent
 import kotlinx.coroutines.experimental.runBlocking
 import org.jetbrains.ktor.http.ContentType
 import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.http.HttpMethod
-import org.jetbrains.ktor.http.util.URLProtocol
-import org.jetbrains.ktor.response.contentType
 
 suspend fun full(client: HttpClient) {
     val searchResults = client.call {
         url {
+            scheme = "https"
             host = "google.com"
-            protocol = URLProtocol.HTTPS
             port = 443
-            path("search")
+            path = "search"
             method = HttpMethod.Get
-
-            parameters.append("q", "hello, world")
+            queryParameters.append("q", "hello, world")
         }
     }
 
@@ -29,9 +27,9 @@ suspend fun full(client: HttpClient) {
 
     val redditFrontJson = client.call {
         url {
+            scheme = "https"
             host = "reddit.com"
-            path(".json")
-            protocol = URLProtocol.HTTPS
+            path = ".json"
             port = 443
             method = HttpMethod.Get
         }

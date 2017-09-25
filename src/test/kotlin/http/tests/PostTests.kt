@@ -2,19 +2,15 @@ package http.tests
 
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
-import http.call.call
-import http.makeRequest
 import http.post
-import http.request.request
+import http.request.contentType
 import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking
 import org.jetbrains.ktor.content.readText
 import org.jetbrains.ktor.host.embeddedServer
 import org.jetbrains.ktor.http.ContentType
-import org.jetbrains.ktor.http.HttpMethod
 import org.jetbrains.ktor.http.withCharset
 import org.jetbrains.ktor.netty.Netty
-import org.jetbrains.ktor.response.contentType
 import org.jetbrains.ktor.response.respondText
 import org.jetbrains.ktor.routing.post
 import org.jetbrains.ktor.routing.routing
