@@ -27,12 +27,12 @@ class Forms {
                     FormType.URL_ENCODED -> {
                         val parameters = Mapper.map(form.data)
                         when (form.method) {
-                            HttpMethod.Get -> TODO()
-                            HttpMethod.Post -> TODO()
-                            else -> TODO()
+                            HttpMethod.Get -> TODO("Forms")
+                            HttpMethod.Post -> TODO("Forms")
+                            else -> TODO("Forms")
                         }
                     }
-                    FormType.MULTIPART -> TODO()
+                    FormType.MULTIPART -> TODO("Forms")
                 }
             }
 

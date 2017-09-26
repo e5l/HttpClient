@@ -13,7 +13,6 @@ interface ClientScopeFeature<out TBuilder : Any, TFeature : Any> {
     fun install(scope: ClientScope, configure: TBuilder.() -> Unit): TFeature
 }
 
-// TODO: refactor with common part in ktor
 fun <TBuilder : Any, TFeature : Any> ClientScope.install(
         feature: ClientScopeFeature<TBuilder, TFeature>,
         configure: TBuilder.() -> Unit = {}

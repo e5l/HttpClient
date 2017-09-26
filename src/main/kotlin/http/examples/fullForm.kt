@@ -4,12 +4,12 @@ import http.HttpClient
 import http.backend.jvm.ApacheBackend
 import http.call.call
 import http.receiveText
-import http.request.contentType
 import http.request.userAgent
 import kotlinx.coroutines.experimental.runBlocking
 import org.jetbrains.ktor.http.ContentType
 import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.http.HttpMethod
+import org.jetbrains.ktor.http.response.contentType
 
 suspend fun full(client: HttpClient) {
     val searchResults = client.call {

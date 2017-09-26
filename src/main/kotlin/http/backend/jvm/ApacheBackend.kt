@@ -2,9 +2,12 @@ package http.backend.jvm
 
 import http.backend.HttpClientBackend
 import http.backend.HttpClientBackendFactory
-import http.common.*
-import http.request.RequestData
-import http.response.ResponseDataBuilder
+import http.common.EmptyBody
+import http.common.ProtocolVersion
+import http.common.ReadChannelBody
+import http.common.WriteChannelBody
+import http.request.Request
+import http.response.ResponseBuilder
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.RequestBuilder
@@ -17,6 +20,7 @@ import org.jetbrains.ktor.cio.ByteBufferWriteChannel
 import org.jetbrains.ktor.cio.toInputStream
 import org.jetbrains.ktor.cio.toReadChannel
 import org.jetbrains.ktor.http.HttpStatusCode
+import org.jetbrains.ktor.util.flattenEntries
 
 
 class ApacheBackend : HttpClientBackend {
@@ -26,7 +30,7 @@ class ApacheBackend : HttpClientBackend {
         backend.start()
     }
 
-    suspend override fun makeRequest(data: RequestData, builder: ResponseDataBuilder, requestPayload: Any): HttpMessageBody {
+    suspend override fun makeRequest(data: Request): ResponseBuilder {
         val apacheBuilder = RequestBuilder.create(data.method.value)
         with(data) {
             apacheBuilder.uri = URIBuilder().apply {
@@ -34,7 +38,7 @@ class ApacheBackend : HttpClientBackend {
                 host = url.host
                 port = url.port
                 path = url.path
-                url.queryParameters.entries().forEach { (key, value) ->  addParameter(key, value) }
+                url.queryParameters.flattenEntries().forEach { (key, value) -> addParameter(key, value) }
             }.build()
         }
 
@@ -42,6 +46,7 @@ class ApacheBackend : HttpClientBackend {
             values.forEach { value -> apacheBuilder.addHeader(name, value) }
         }
 
+        val requestPayload = data.payload
         when (requestPayload) {
             is ReadChannelBody -> InputStreamEntity(requestPayload.channel.toInputStream())
             is WriteChannelBody -> {
@@ -74,6 +79,7 @@ class ApacheBackend : HttpClientBackend {
         val entity = response.entity
         val protocolVersion = statusLine.protocolVersion
 
+        val builder = ResponseBuilder()
         builder.apply {
             statusCode = HttpStatusCode.fromValue(statusLine.statusCode)
             reason = statusLine.reasonPhrase
@@ -85,9 +91,11 @@ class ApacheBackend : HttpClientBackend {
             with(protocolVersion) {
                 version = ProtocolVersion(protocol, major, minor)
             }
+
+            payload = if (entity.isStreaming) ReadChannelBody(entity.content.toReadChannel()) else EmptyBody
         }
 
-        return if (entity.isStreaming) ReadChannelBody(entity.content.toReadChannel()) else EmptyBody
+        return builder
     }
 
     override fun close() {

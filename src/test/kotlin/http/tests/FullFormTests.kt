@@ -3,9 +3,8 @@ package http.tests
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
 import http.call.call
-import http.makeRequest
 import http.receiveText
-import http.request.request
+import http.request
 import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking
 import org.jetbrains.ktor.host.embeddedServer
@@ -65,7 +64,7 @@ class FullFormTests : TestWithKtor() {
             }
         }
 
-        val body = runBlocking { client.makeRequest<String>(requestBuilder) }
+        val body = runBlocking { client.request<String>(requestBuilder) }
         assert(body == "Hello, world")
     }
 }

@@ -14,7 +14,7 @@ class IgnoreBody {
                     return@intercept
                 }
 
-                proceedWith(data.copy(response = Unit))
+                data.response.payload = Unit
             }
 
             return IgnoreBody()

@@ -1,13 +1,18 @@
 package http
 
-import http.backend.*
+import http.backend.HttpClientBackend
+import http.backend.HttpClientBackendFactory
+import http.call.HttpClientCall
 import http.features.ClientScopeFeature
 import http.features.IgnoreBody
 import http.features.PlainText
 import http.features.install
-import http.pipeline.*
-import http.request.*
-import http.response.*
+import http.pipeline.CallScope
+import http.pipeline.EmptyScope
+import http.request.RequestBuilder
+import http.request.RequestPipeline
+import http.response.ResponsePipeline
+import http.utils.safeAs
 
 class HttpClient(
         backendFactory: HttpClientBackendFactory,
@@ -20,12 +25,14 @@ class HttpClient(
     private val backend: HttpClientBackend = backendFactory()
 
     init {
-        requestPipeline.intercept(RequestPipeline.Send) { requestData: Any ->
-            val builder = ResponseDataBuilder()
-            val responsePayload = backend.makeRequest(call.request.data, builder, requestData)
+        requestPipeline.intercept(RequestPipeline.Send) { requestBuilder ->
+            val request =
+                    requestBuilder.safeAs<RequestBuilder>()?.build()
+                    ?: error("Subject in request pipeline is not RequestDataBuilder: $requestBuilder")
 
-            call.response.prepare(builder.build())
-            proceedWith(responsePayload)
+            val response = backend.makeRequest(request)
+
+            proceedWith(HttpClientCall(request, response.build(), call))
         }
 
         block()

@@ -146,4 +146,3 @@ class CookiesTests : TestWithKtor() {
 
     private fun ClientScope.getId() = cookies("localhost")["id"]?.value?.toInt()!!
 }
-

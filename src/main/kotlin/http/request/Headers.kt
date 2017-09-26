@@ -1,25 +1,17 @@
 package http.request
 
 import org.jetbrains.ktor.http.ContentType
+import org.jetbrains.ktor.http.HttpHeaders
+import org.jetbrains.ktor.http.charset
+import org.jetbrains.ktor.util.ValuesMap
+import org.jetbrains.ktor.util.ValuesMapBuilder
 import java.nio.charset.Charset
 
-class Headers {
-    fun entries(): Sequence<Pair<String, List<String>>> = TODO()
+typealias Headers = ValuesMap
 
-    operator fun get(contentType: String): List<String>? = TODO()
-}
+typealias HeadersBuilder = ValuesMapBuilder
 
-class HeadersBuilder {
+fun HeadersBuilder.charset(): Charset? = get(HttpHeaders.ContentType)?.let { ContentType.parse(it).charset() }
 
-    fun append(key: String, value: String): Unit = TODO()
-
-    fun build(): Headers = TODO()
-
-    fun takeFrom(headers: Headers) {}
-}
-
-fun Headers.charset(): Charset? = TODO()
-
-fun HeadersBuilder.contentType(contentType: ContentType) {}
-fun HeadersBuilder.userAgent(userAgent: String) {}
+fun HeadersBuilder.userAgent(content: String) = set(HttpHeaders.UserAgent, content)
 

@@ -1,9 +1,9 @@
 package http
 
-import http.request.RequestDataBuilder
+import http.request.RequestBuilder
 
 
-fun RequestDataBuilder.url(
+fun RequestBuilder.url(
         scheme: String = "http",
         host: String = "localhost",
         port: Int = 80,

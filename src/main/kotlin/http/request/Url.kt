@@ -1,14 +1,11 @@
 package http.request
 
-class Parameters {
-    fun entries(): Sequence<Pair<String, String>> = TODO()
-}
+import org.jetbrains.ktor.util.ValuesMap
+import org.jetbrains.ktor.util.ValuesMapBuilder
 
-class ParametersBuilder {
-    fun append(key: String, value: String) {}
-    operator fun set(key: String, value: String) {}
-    operator fun set(key: String, value: List<String>) {}
-}
+typealias Parameters = ValuesMap
+
+typealias ParametersBuilder = ValuesMapBuilder
 
 class Url(
         val scheme: String,
@@ -18,9 +15,7 @@ class Url(
         val queryParameters: Parameters,
         val username: String?,
         val password: String?
-) {
-    override fun toString(): String = TODO()
-}
+)
 
 class UrlBuilder {
     var scheme: String = "http"
@@ -37,7 +32,17 @@ class UrlBuilder {
 
     var queryParameters = ParametersBuilder()
 
-    fun takeFrom(url: Url) {}
+    fun takeFrom(url: Url) {
+        scheme = url.scheme
+        host = url.host
+        port = url.port
+        path = url.path
+        username = url.username
+        password = url.password
+        queryParameters = ParametersBuilder().apply {
+            appendAll(url.queryParameters)
+        }
+    }
 
-    fun build(): Url = TODO()
+    fun build(): Url = Url(scheme, host, port, path, queryParameters.build(), username, password)
 }

@@ -3,7 +3,7 @@ package http.tests
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
 import http.call.call
-import http.submit
+import http.receiveText
 import http.tests.utils.TestWithKtor
 import http.url
 import kotlinx.coroutines.experimental.runBlocking
@@ -40,10 +40,14 @@ class FormsTest : TestWithKtor() {
     fun submitGetForm() {
         val client = HttpClient(ApacheBackend)
 
-        val request = client.call({ url(port = 8080) })
 
         val response = runBlocking {
-            request.submit<String>(LoginForm("vasya", "pupkin"))
+            val call = client.call({
+                url(port = 8080)
+                payload = LoginForm("vasya", "pupkin")
+            })
+
+            call.receiveText()
         }
 
         assert(response == "OK")

@@ -1,37 +1,39 @@
 package http.response
 
-import http.call.HttpClientCall
 import http.common.ProtocolVersion
 import http.request.Headers
 import http.request.HeadersBuilder
 import org.jetbrains.ktor.http.HttpStatusCode
 
-class Response(val call: HttpClientCall, val pipeline: ResponsePipeline) {
-    lateinit var data: ResponseData
-
-    fun prepare(data: ResponseData) {
-        this.data = data
-    }
-}
-
-class ResponseData(
+data class Response(
         val statusCode: HttpStatusCode,
         val reason: String,
         val version: ProtocolVersion,
-        val headers: Headers
+        val headers: Headers,
+        val payload: Any
 )
 
-class ResponseDataBuilder {
+class ResponseBuilder() {
+
+    constructor(response: Response) : this() {
+        statusCode = response.statusCode
+        reason = response.reason
+        version = response.version
+        headers.appendAll(response.headers)
+        payload = response.payload
+    }
+
     lateinit var statusCode: HttpStatusCode
     lateinit var reason: String
     lateinit var version: ProtocolVersion
+    lateinit var payload: Any
 
-    private val headersBuilder = HeadersBuilder()
+    val headers = HeadersBuilder()
 
     fun headers(block: HeadersBuilder.() -> Unit) {
-        headersBuilder.apply(block)
+        headers.apply(block)
     }
 
-    fun build(): ResponseData = ResponseData(statusCode, reason, version, headersBuilder.build())
+    fun build(): Response = Response(statusCode, reason, version, headers.build(), payload)
 }
 
