@@ -3,6 +3,7 @@ package http.examples
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
 import http.call.call
+import http.pipeline.ClientScope
 import http.receiveText
 import http.request.userAgent
 import kotlinx.coroutines.experimental.runBlocking
@@ -11,7 +12,7 @@ import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.http.HttpMethod
 import org.jetbrains.ktor.http.response.contentType
 
-suspend fun full(client: HttpClient) {
+suspend fun full(client: ClientScope) {
     val searchResults = client.call {
         url {
             scheme = "https"

@@ -15,11 +15,14 @@ enum class FormType {
 data class FormData(val data: Any, val type: FormType = FormType.URL_ENCODED, val method: HttpMethod = HttpMethod.Get)
 
 class Forms {
+    object Feature : ClientFeature<Unit, Forms> {
+        override fun prepare(configure: Unit.() -> Unit): Forms {
+            return Forms()
+        }
 
-    object Feature : ClientScopeFeature<Unit, Forms> {
         override val key: AttributeKey<Forms> = AttributeKey("Forms")
 
-        override fun install(scope: ClientScope, configure: Unit.() -> Unit): Forms {
+        override fun install(feature: Forms, scope: ClientScope) {
             scope.requestPipeline.intercept(RequestPipeline.Content) { subject ->
                 val form = subject.safeAs<FormData>() ?: return@intercept
 
@@ -35,9 +38,6 @@ class Forms {
                     FormType.MULTIPART -> TODO("Forms")
                 }
             }
-
-            return Forms()
         }
     }
-
 }

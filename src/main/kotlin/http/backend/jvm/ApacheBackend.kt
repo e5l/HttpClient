@@ -10,11 +10,14 @@ import http.request.Request
 import http.response.ResponseBuilder
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import org.apache.http.HttpResponse
+import org.apache.http.client.config.CookieSpecs
+import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.client.utils.URIBuilder
 import org.apache.http.concurrent.FutureCallback
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.entity.InputStreamEntity
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient
 import org.apache.http.impl.nio.client.HttpAsyncClients
 import org.jetbrains.ktor.cio.ByteBufferWriteChannel
 import org.jetbrains.ktor.cio.toInputStream
@@ -24,9 +27,11 @@ import org.jetbrains.ktor.util.flattenEntries
 
 
 class ApacheBackend : HttpClientBackend {
-    private val backend = HttpAsyncClients.createDefault()
+    private val backend: CloseableHttpAsyncClient
 
     init {
+        val config = RequestConfig.custom().setCookieSpec(CookieSpecs.IGNORE_COOKIES).build()
+        backend = HttpAsyncClients.custom().setDefaultRequestConfig(config).build()
         backend.start()
     }
 

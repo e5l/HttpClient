@@ -1,6 +1,6 @@
 package http.features.cookies
 
-import http.features.ClientScopeFeature
+import http.features.ClientFeature
 import http.features.feature
 import http.pipeline.ClientScope
 import http.request.RequestBuilder
@@ -36,31 +36,30 @@ class Cookies(private val storage: CookiesStorage) {
         }
     }
 
-    companion object Feature : ClientScopeFeature<Configuration, Cookies> {
+    companion object Feature : ClientFeature<Configuration, Cookies> {
+        override fun prepare(configure: Configuration.() -> Unit): Cookies = Configuration().apply(configure).build()
+
         override val key: AttributeKey<Cookies> = AttributeKey("Cookies")
 
-        override fun install(scope: ClientScope, configure: Configuration.() -> Unit): Cookies {
-            val cookies = Configuration().apply(configure).build()
+        override fun install(feature: Cookies, scope: ClientScope) {
 
             scope.requestPipeline.intercept(RequestPipeline.State) { requestData ->
                 val request = requestData.safeAs<RequestBuilder>() ?: return@intercept
                 val host = request.url.host
-                cookies.forEach(host) {
+                feature.forEach(host) {
                     request.headers.append(HttpHeaders.Cookie, renderSetCookieHeader(it))
                 }
             }
 
-            scope.responsePipeline.intercept(ResponsePipeline.Transform) { responseContainer ->
-                val headers = responseContainer.response.headers
+            scope.responsePipeline.intercept(ResponsePipeline.Before) { (_, request, response) ->
+                val headers = response.headers
                 headers.getAll(HttpHeaders.SetCookie)?.map { parseServerSetCookieHeader(it) }?.forEach {
-                    cookies.storage[responseContainer.request.url.host] = it
+                    feature.storage[request.url.host] = it
                 }
             }
-
-            return cookies
         }
     }
 }
 
-fun ClientScope.cookies(host: String): Map<String, Cookie> = feature(Cookies)[host] ?: mapOf()
+fun ClientScope.cookies(host: String): Map<String, Cookie> = feature(Cookies)?.get(host) ?: mapOf()
 

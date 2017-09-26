@@ -50,15 +50,15 @@ class PostTests : TestWithKtor() {
         postHelper("$BODY_PREFIX: $builder")
     }
 
-    private fun postHelper(test: String) {
+    private fun postHelper(text: String) {
         val client = HttpClient(ApacheBackend)
 
         val response = runBlocking {
-            client.post<String>(port = 8080, payload = test) {
+            client.post<String>(port = 8080, payload = text) {
                 headers.contentType(ContentType.Text.Plain.withCharset(Charset.defaultCharset()))
             }
         }
-        assert(response == test)
+        assert(response == text)
 
         client.close()
     }

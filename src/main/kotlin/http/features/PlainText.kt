@@ -21,36 +21,23 @@ import org.jetbrains.ktor.util.AttributeKey
 import java.io.InputStreamReader
 import java.nio.charset.Charset
 
-class PlainText(val config: Configuration) {
+class PlainText(val defaultCharset
+
+: Charset) {
 
     class Configuration {
         var defaultCharset: Charset = Charset.defaultCharset()
+
+        fun build(): PlainText = PlainText(defaultCharset)
     }
 
-    companion object Feature : ClientScopeFeature<Configuration, PlainText> {
+    companion object Feature : ClientFeature<Configuration, PlainText> {
         override val key = AttributeKey<PlainText>("PlainText")
 
-        override fun install(scope: ClientScope, configure: Configuration.() -> Unit): PlainText {
-            val config = Configuration().apply(configure)
-            scope.responsePipeline.intercept(ResponsePipeline.Transform) { container ->
-                if (container.expectedType != String::class) {
-                    return@intercept
-                }
+        override fun prepare(configure: Configuration.() -> Unit): PlainText = Configuration().apply(configure).build()
 
-                val payload = container.response.payload.safeAs<HttpMessageBody>() ?: return@intercept
 
-                val charset = container.response.headers.charset() ?: config.defaultCharset
-                container.response.payload = when (payload) {
-                    is WriteChannelBody -> {
-                        val channel = ByteBufferWriteChannel().apply(payload.block)
-                        channel.toString(charset)
-                    }
-                    is ReadChannelBody -> InputStreamReader(payload.channel.toInputStream(), charset).readText()
-                    is EmptyBody -> ""
-                }
-
-            }
-
+        override fun install(feature: PlainText, scope: ClientScope) {
             scope.requestPipeline.intercept(RequestPipeline.Content) { data ->
                 val requestData = data.safeAs<RequestBuilder>() ?: return@intercept
                 val requestString = requestData.payload.safeAs<String>() ?: return@intercept
@@ -65,7 +52,23 @@ class PlainText(val config: Configuration) {
                 requestData.payload = ReadChannelBody(payload.toReadChannel())
             }
 
-            return PlainText(config)
+            scope.responsePipeline.intercept(ResponsePipeline.Transform) { (expectedType, _, response) ->
+                if (expectedType != String::class) {
+                    return@intercept
+                }
+
+                val payload = response.payload.safeAs<HttpMessageBody>() ?: return@intercept
+                val charset = response.headers.charset() ?: feature.defaultCharset
+
+                response.payload = when (payload) {
+                    is WriteChannelBody -> {
+                        val channel = ByteBufferWriteChannel().apply(payload.block)
+                        channel.toString(charset)
+                    }
+                    is ReadChannelBody -> InputStreamReader(payload.channel.toInputStream(), charset).readText()
+                    is EmptyBody -> ""
+                }
+            }
         }
     }
 }

@@ -5,7 +5,6 @@ import http.backend.jvm.ApacheBackend
 import http.features.cookies.ConstantCookieStorage
 import http.features.cookies.Cookies
 import http.features.cookies.cookies
-import http.features.install
 import http.get
 import http.pipeline.ClientScope
 import http.pipeline.config
@@ -33,10 +32,12 @@ class CookiesTests : TestWithKtor() {
                 call.respond("Done")
             }
             get("/update-user-id") {
-                val id = call.request.cookies["id"]?.toInt() ?: let {
-                    call.response.status(HttpStatusCode.Forbidden)
-                    call.respondText("Forbidden")
-                    return@get
+                val id = run {
+                    call.request.cookies["id"]?.toInt() ?: let {
+                        call.response.status(HttpStatusCode.Forbidden)
+                        call.respondText("Forbidden")
+                        return@get
+                    }
                 }
 
                 val cookie = Cookie("id", (id + 1).toString())
@@ -91,7 +92,8 @@ class CookiesTests : TestWithKtor() {
         }
 
         runBlocking { client.get<Unit>(path = "update-user-id", port = 8080) }
-
+        assert(client.getId() == 1)
+        runBlocking { client.get<Unit>(path = "update-user-id", port = 8080) }
         assert(client.getId() == 1)
     }
 
@@ -101,7 +103,8 @@ class CookiesTests : TestWithKtor() {
          * |    |
          * c    d
          */
-        val a = HttpClient(ApacheBackend).config { install(Cookies) { default { set("localhost", Cookie("id", "1")) } } }
+        val client = HttpClient(ApacheBackend)
+        val a = client.config { install(Cookies) { default { set("localhost", Cookie("id", "1")) } } }
         val b = a.config { install(Cookies) { default { set("localhost", Cookie("id", "10")) } } }
         val c = a.config { }
         val d = b.config { }
@@ -119,7 +122,7 @@ class CookiesTests : TestWithKtor() {
             b.get<Unit>(path = "update-user-id", port = 8080)
         }
 
-        assert(a.getId() == 2, { a.getId() })
+        assert(a.getId() == 2)
         assert(c.getId() == 2)
         assert(b.getId() == 11)
         assert(d.getId() == 11)
