@@ -15,6 +15,7 @@ import org.jetbrains.ktor.host.embeddedServer
 import org.jetbrains.ktor.http.Cookie
 import org.jetbrains.ktor.http.HttpStatusCode
 import org.jetbrains.ktor.netty.Netty
+import org.jetbrains.ktor.pipeline.call
 import org.jetbrains.ktor.response.respond
 import org.jetbrains.ktor.response.respondText
 import org.jetbrains.ktor.routing.get
@@ -91,7 +92,9 @@ class CookiesTests : TestWithKtor() {
             }
         }
 
-        runBlocking { client.get<Unit>(path = "update-user-id", port = 8080) }
+        runBlocking {
+            client.get<Unit>(path = "update-user-id", port = 8080)
+        }
         assert(client.getId() == 1)
         runBlocking { client.get<Unit>(path = "update-user-id", port = 8080) }
         assert(client.getId() == 1)

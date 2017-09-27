@@ -28,7 +28,7 @@ class HttpClient private constructor(val backend: HttpClientBackend) : CallScope
                                 ?: error("Subject in request pipeline is not RequestDataBuilder: $requestBuilder")
 
                         val response = backend.makeRequest(request)
-                        proceedWith(HttpClientCall(request, response.build(), call))
+                        proceedWith(HttpClientCall(request, response.build(), context))
                     }
                 }
             }.default()

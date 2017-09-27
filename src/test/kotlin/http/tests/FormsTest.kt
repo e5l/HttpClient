@@ -11,6 +11,7 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.ktor.host.ApplicationHost
 import org.jetbrains.ktor.host.embeddedServer
 import org.jetbrains.ktor.netty.Netty
+import org.jetbrains.ktor.pipeline.call
 import org.jetbrains.ktor.response.respondText
 import org.jetbrains.ktor.routing.get
 import org.jetbrains.ktor.routing.routing
