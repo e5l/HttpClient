@@ -3,6 +3,9 @@ package http.tests
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
 import http.call.call
+import http.features.FormData
+import http.features.Forms
+import http.pipeline.config
 import http.receiveText
 import http.tests.utils.TestWithKtor
 import http.url
@@ -39,13 +42,14 @@ class FormsTest : TestWithKtor() {
 
     @Test
     fun submitGetForm() {
-        val client = HttpClient(ApacheBackend)
-
+        val client = HttpClient(ApacheBackend).config {
+            install(Forms)
+        }
 
         val response = runBlocking {
             val call = client.call({
                 url(port = 8080)
-                payload = LoginForm("vasya", "pupkin")
+                payload = FormData(LoginForm("vasya", "pupkin"))
             })
 
             call.receiveText()
