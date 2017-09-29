@@ -1,4 +1,4 @@
-package http.request
+package http.utils
 
 import org.jetbrains.ktor.util.ValuesMap
 import org.jetbrains.ktor.util.ValuesMapBuilder

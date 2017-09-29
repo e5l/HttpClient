@@ -23,10 +23,11 @@ class HttpClientCall(
     }
 }
 
-suspend inline fun <reified T> HttpClientCall.receive(): T = receive(T::class).response.payload as T
-
 suspend fun ClientScope.call(builder: RequestBuilder): HttpClientCall =
         requestPipeline.execute(this, builder) as HttpClientCall
 
 suspend fun ClientScope.call(block: RequestBuilder.() -> Unit): HttpClientCall =
         call(RequestBuilder().apply(block))
+
+suspend inline fun <reified T> HttpClientCall.receive(): T = receive(T::class).response.payload as T
+

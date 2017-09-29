@@ -1,4 +1,4 @@
-package http.common
+package http.utils
 
 import org.jetbrains.ktor.cio.ReadChannel
 import org.jetbrains.ktor.cio.WriteChannel

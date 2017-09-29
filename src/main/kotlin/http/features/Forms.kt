@@ -4,7 +4,9 @@ import http.pipeline.ClientScope
 import http.request.RequestBuilder
 import http.request.RequestPipeline
 import http.utils.safeAs
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Mapper
+import kotlinx.serialization.serializer
 import org.jetbrains.ktor.http.HttpMethod
 import org.jetbrains.ktor.http.formUrlEncode
 import org.jetbrains.ktor.util.AttributeKey
@@ -26,7 +28,7 @@ class Forms {
         override val key: AttributeKey<Forms> = AttributeKey("Forms")
 
         override fun install(feature: Forms, scope: ClientScope) {
-            scope.requestPipeline.intercept(RequestPipeline.Content) { requestBuilder ->
+            scope.requestPipeline.intercept(RequestPipeline.Transform) { requestBuilder ->
                 val builder = requestBuilder.safeAs<RequestBuilder>() ?: return@intercept
                 val form = builder.payload.safeAs<FormData>() ?: return@intercept
 
@@ -47,5 +49,9 @@ class Forms {
     }
 }
 
-private fun serializeData(data: Any): List<Pair<String, String>> =
-        Mapper.map(data).map { (key, value) -> key to value.toString() }
+private fun serializeData(data: Any): List<Pair<String, String>> {
+    val mapper = Mapper.OutMapper()
+    val ser = data::class.serializer() as KSerializer<Any>
+    mapper.write(ser, data)
+    return mapper.map.map { (key, value) -> key to value.toString() }
+}

@@ -2,12 +2,12 @@ package http.backend.jvm
 
 import http.backend.HttpClientBackend
 import http.backend.HttpClientBackendFactory
-import http.common.EmptyBody
-import http.common.ProtocolVersion
-import http.common.ReadChannelBody
-import http.common.WriteChannelBody
 import http.request.Request
 import http.response.ResponseBuilder
+import http.utils.EmptyBody
+import http.utils.ProtocolVersion
+import http.utils.ReadChannelBody
+import http.utils.WriteChannelBody
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import org.apache.http.HttpResponse
 import org.apache.http.client.config.CookieSpecs
@@ -82,7 +82,6 @@ class ApacheBackend : HttpClientBackend {
 
         val statusLine = response.statusLine
         val entity = response.entity
-        val protocolVersion = statusLine.protocolVersion
 
         val builder = ResponseBuilder()
         builder.apply {
@@ -93,7 +92,7 @@ class ApacheBackend : HttpClientBackend {
                 response.allHeaders.forEach { append(it.name, it.value) }
             }
 
-            with(protocolVersion) {
+            with(statusLine.protocolVersion) {
                 version = ProtocolVersion(protocol, major, minor)
             }
 

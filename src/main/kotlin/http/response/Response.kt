@@ -1,8 +1,8 @@
 package http.response
 
-import http.common.ProtocolVersion
-import http.request.Headers
-import http.request.HeadersBuilder
+import http.utils.Headers
+import http.utils.HeadersBuilder
+import http.utils.ProtocolVersion
 import org.jetbrains.ktor.http.HttpStatusCode
 
 data class Response(
@@ -36,4 +36,3 @@ class ResponseBuilder() {
 
     fun build(): Response = Response(statusCode, reason, version, headers.build(), payload)
 }
-

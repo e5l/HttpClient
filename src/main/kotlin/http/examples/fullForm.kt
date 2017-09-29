@@ -5,7 +5,7 @@ import http.backend.jvm.ApacheBackend
 import http.call.call
 import http.pipeline.ClientScope
 import http.receiveText
-import http.request.userAgent
+import http.utils.userAgent
 import kotlinx.coroutines.experimental.runBlocking
 import org.jetbrains.ktor.http.ContentType
 import org.jetbrains.ktor.http.HttpHeaders

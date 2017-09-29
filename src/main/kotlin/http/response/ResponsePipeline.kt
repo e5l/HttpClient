@@ -6,12 +6,12 @@ import org.jetbrains.ktor.pipeline.Pipeline
 import org.jetbrains.ktor.pipeline.PipelinePhase
 import kotlin.reflect.KClass
 
-class ResponsePipeline : Pipeline<ResponseContainer, ClientScope>(Before, Transform, Render, ContentEncoding, After) {
+class ResponsePipeline : Pipeline<ResponseContainer, ClientScope>(Receive, Parse, Transform, State, After) {
     companion object Phases {
-        val Before = PipelinePhase("Before")
+        val Receive = PipelinePhase("Receive")
+        val Parse = PipelinePhase("Parse")
         val Transform = PipelinePhase("Transform")
-        val Render = PipelinePhase("Render")
-        val ContentEncoding = PipelinePhase("ContentEncoding")
+        val State = PipelinePhase("State")
         val After = PipelinePhase("After")
     }
 }

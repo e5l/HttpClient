@@ -1,5 +1,9 @@
 package http.request
 
+import http.utils.Headers
+import http.utils.HeadersBuilder
+import http.utils.Url
+import http.utils.UrlBuilder
 import org.jetbrains.ktor.http.HttpMethod
 import java.nio.charset.Charset
 
@@ -19,7 +23,7 @@ class RequestBuilder() {
     val url = UrlBuilder()
     val headers = HeadersBuilder()
     var payload: Any = Unit
-    var charset: Charset = Charset.defaultCharset()
+    var charset: Charset? = null
 
     fun headers(block: HeadersBuilder.() -> Unit) = headers.apply(block)
 
