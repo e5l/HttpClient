@@ -1,9 +1,9 @@
 package http.response
 
 import http.pipeline.ClientScope
+import http.pipeline.Pipeline
+import http.pipeline.PipelinePhase
 import http.request.Request
-import org.jetbrains.ktor.pipeline.Pipeline
-import org.jetbrains.ktor.pipeline.PipelinePhase
 import kotlin.reflect.KClass
 
 class ResponsePipeline : Pipeline<ResponseContainer, ClientScope>(Receive, Parse, Transform, State, After) {

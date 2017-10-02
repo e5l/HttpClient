@@ -1,8 +1,8 @@
 package http.request
 
 import http.pipeline.ClientScope
-import org.jetbrains.ktor.pipeline.Pipeline
-import org.jetbrains.ktor.pipeline.PipelinePhase
+import http.pipeline.Pipeline
+import http.pipeline.PipelinePhase
 
 class RequestPipeline : Pipeline<Any, ClientScope>(Before, State, Transform, Render, Send) {
     companion object Phases {
