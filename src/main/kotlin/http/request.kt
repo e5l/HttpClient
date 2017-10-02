@@ -5,6 +5,7 @@ import http.call.receive
 import http.pipeline.ClientScope
 import http.request.RequestBuilder
 import org.jetbrains.ktor.http.HttpMethod
+import java.net.URL
 
 suspend inline fun <reified T> ClientScope.request(builder: RequestBuilder = RequestBuilder()): T =
         call(builder).receive<T>()
@@ -29,6 +30,10 @@ suspend inline fun <reified T> ClientScope.get(
         path: String = "",
         payload: Any = Unit
 ): T = get(scheme, host, port, path, payload, {})
+
+suspend inline fun <reified T> ClientScope.get(data: URL): T = get {
+    url.takeFrom(data)
+}
 
 suspend inline fun <reified T> ClientScope.post(
         scheme: String = "http", host: String = "localhost", port: Int = 80,
