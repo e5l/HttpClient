@@ -2,8 +2,10 @@ package http.tests
 
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
-import http.features.Json
+import http.features.json.GsonSerializer
+import http.features.json.Json
 import http.get
+import http.pipeline.ClientScope
 import http.pipeline.config
 import http.tests.utils.TestWithKtor
 import junit.framework.Assert.assertEquals
@@ -46,6 +48,23 @@ class JsonTests : TestWithKtor() {
         val client = HttpClient(ApacheBackend).config {
             install(Json)
         }
+
+        simpleTest(client)
+    }
+
+    @Test
+    fun simpleGson() {
+        val client = HttpClient(ApacheBackend).config {
+            install(Json) {
+                serializer = GsonSerializer()
+            }
+        }
+
+        simpleTest(client)
+    }
+
+
+    private fun simpleTest(client: ClientScope) {
 
         val request = Request(1)
         val response = runBlocking {

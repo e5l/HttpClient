@@ -9,7 +9,7 @@ internal val FEATURE_INSTALLED_LIST = AttributeKey<Attributes>("ApplicationFeatu
 interface ClientFeature<out TBuilder : Any, TFeature : Any> {
     val key: AttributeKey<TFeature>
 
-    fun prepare(configure: TBuilder.() -> Unit): TFeature
+    fun prepare(block: TBuilder.() -> Unit): TFeature
 
     fun install(feature: TFeature, scope: ClientScope)
 }
