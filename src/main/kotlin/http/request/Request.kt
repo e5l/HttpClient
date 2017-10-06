@@ -1,5 +1,6 @@
 package http.request
 
+import http.takeFrom
 import http.utils.Headers
 import http.utils.HeadersBuilder
 import http.utils.Url

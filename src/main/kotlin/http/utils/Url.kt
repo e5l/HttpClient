@@ -7,7 +7,7 @@ typealias Parameters = ValuesMap
 
 typealias ParametersBuilder = ValuesMapBuilder
 
-class Url(
+data class Url(
         val scheme: String,
         val host: String,
         val port: Int,
@@ -32,17 +32,5 @@ class UrlBuilder {
 
     var queryParameters = ParametersBuilder()
 
-    fun takeFrom(url: Url) {
-        scheme = url.scheme
-        host = url.host
-        port = url.port
-        path = url.path
-        username = url.username
-        password = url.password
-        queryParameters = ParametersBuilder().apply {
-            appendAll(url.queryParameters)
-        }
-    }
-
-    fun build(): Url = Url(scheme, host, port, path, queryParameters.build(), username, password)
+    fun build(): Url = Url(scheme, host, port, path, valuesOf(queryParameters), username, password)
 }

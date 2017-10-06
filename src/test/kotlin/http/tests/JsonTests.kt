@@ -8,7 +8,7 @@ import http.get
 import http.pipeline.ClientScope
 import http.pipeline.config
 import http.tests.utils.TestWithKtor
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JSON

@@ -23,10 +23,8 @@ class HttpClient private constructor(val backend: HttpClientBackend) : CallScope
 
             return HttpClient(backend).config {
                 install("backend") {
-                    requestPipeline.intercept(RequestPipeline.Send) { requestBuilder ->
-                        val request = requestBuilder.safeAs<RequestBuilder>()?.build()
-                                ?: error("Subject in request pipeline is not RequestDataBuilder: $requestBuilder")
-
+                    requestPipeline.intercept(RequestPipeline.Send) { builder ->
+                        val request = builder.safeAs<RequestBuilder>()?.build() ?: return@intercept
                         val response = backend.makeRequest(request)
                         proceedWith(HttpClientCall(request, response.build(), context))
                     }

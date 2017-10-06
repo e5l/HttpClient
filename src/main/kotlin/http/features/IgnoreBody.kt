@@ -7,7 +7,7 @@ import org.jetbrains.ktor.util.AttributeKey
 class IgnoreBody {
     companion object Feature : ClientFeature<Unit, IgnoreBody> {
 
-        override fun prepare(configure: Unit.() -> Unit): IgnoreBody = IgnoreBody()
+        override fun prepare(block: Unit.() -> Unit): IgnoreBody = IgnoreBody()
 
         override val key: AttributeKey<IgnoreBody> = AttributeKey("IgnoreBody")
 

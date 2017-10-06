@@ -1,6 +1,7 @@
 package http.features
 
 import http.pipeline.ClientScope
+import http.pipeline.intercept
 import http.request.RequestBuilder
 import http.request.RequestPipeline
 import http.response.ResponseBuilder
@@ -57,9 +58,8 @@ class PlainText(val defaultCharset: Charset) {
         override fun prepare(configure: Configuration.() -> Unit): PlainText = Configuration().apply(configure).build()
 
         override fun install(feature: PlainText, scope: ClientScope) {
-            scope.requestPipeline.intercept(RequestPipeline.Transform) { data ->
-                val requestBuilder = data.safeAs<RequestBuilder>() ?: return@intercept
-                requestBuilder.payload = feature.write(requestBuilder) ?: return@intercept
+            scope.requestPipeline.intercept(RequestPipeline.Transform) { builder: RequestBuilder ->
+                builder.payload = feature.write(builder) ?: return@intercept
             }
 
             scope.responsePipeline.intercept(ResponsePipeline.Transform) { (expectedType, _, response) ->

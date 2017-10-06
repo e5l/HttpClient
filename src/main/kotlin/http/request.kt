@@ -35,6 +35,8 @@ suspend inline fun <reified T> ClientScope.get(data: URL): T = get {
     url.takeFrom(data)
 }
 
+suspend inline fun <reified T> ClientScope.get(url: String): T = get(URL(url))
+
 suspend inline fun <reified T> ClientScope.post(
         scheme: String = "http", host: String = "localhost", port: Int = 80,
         path: String = "",

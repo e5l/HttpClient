@@ -1,6 +1,7 @@
 package http.features
 
 import http.pipeline.ClientScope
+import http.pipeline.intercept
 import http.request.RequestBuilder
 import http.request.RequestPipeline
 import http.utils.safeAs
@@ -21,15 +22,14 @@ data class FormData(val data: Any, val type: FormType = FormType.URL_ENCODED, va
 class Forms {
 
     companion object Feature : ClientFeature<Unit, Forms> {
-        override fun prepare(configure: Unit.() -> Unit): Forms {
+        override fun prepare(block: Unit.() -> Unit): Forms {
             return Forms()
         }
 
         override val key: AttributeKey<Forms> = AttributeKey("Forms")
 
         override fun install(feature: Forms, scope: ClientScope) {
-            scope.requestPipeline.intercept(RequestPipeline.Transform) { requestBuilder ->
-                val builder = requestBuilder.safeAs<RequestBuilder>() ?: return@intercept
+            scope.requestPipeline.intercept(RequestPipeline.Transform) { builder: RequestBuilder ->
                 val form = builder.payload.safeAs<FormData>() ?: return@intercept
 
                 when (form.type) {

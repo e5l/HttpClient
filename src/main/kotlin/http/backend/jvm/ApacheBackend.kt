@@ -89,7 +89,11 @@ class ApacheBackend : HttpClientBackend {
             reason = statusLine.reasonPhrase
 
             headers {
-                response.allHeaders.forEach { append(it.name, it.value) }
+                response.allHeaders.forEach { headerLine ->
+                    headerLine.elements.forEach line@ {
+                        append(headerLine.name, it.toString())
+                    }
+                }
             }
 
             with(statusLine.protocolVersion) {
