@@ -4,11 +4,11 @@ import http.HttpClient
 import http.backend.jvm.ApacheBackend
 import http.call.call
 import http.features.FormData
-import http.features.Forms
+import http.features.HttpForms
 import http.pipeline.config
 import http.receiveText
 import http.tests.utils.TestWithKtor
-import http.url
+import http.utils.url
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.serialization.Serializable
 import org.jetbrains.ktor.host.ApplicationHost
@@ -43,7 +43,7 @@ class FormsTest : TestWithKtor() {
     @Test
     fun submitGetForm() {
         val client = HttpClient(ApacheBackend).config {
-            install(Forms)
+            install(HttpForms)
         }
 
         val response = runBlocking {

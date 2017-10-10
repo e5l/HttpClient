@@ -1,20 +1,20 @@
 package http.pipeline
 
-import http.features.ClientFeature
+import http.features.HttpClientFeature
 import http.features.FEATURE_INSTALLED_LIST
-import http.features.IgnoreBody
-import http.features.PlainText
+import http.features.HttpIgnoreBody
+import http.features.HttpPlainText
 import org.jetbrains.ktor.util.AttributeKey
 import org.jetbrains.ktor.util.Attributes
 
 private val CLIENT_CONFIG_KEY = AttributeKey<ClientConfig>("ClientConfig")
 
 class ClientConfig {
-    private val features = mutableMapOf<AttributeKey<*>, (ClientScope) -> Unit>()
-    private val customInterceptors = mutableMapOf<String, (ClientScope) -> Unit>()
+    private val features = mutableMapOf<AttributeKey<*>, (HttpClientScope) -> Unit>()
+    private val customInterceptors = mutableMapOf<String, (HttpClientScope) -> Unit>()
 
     fun <TBuilder : Any, TFeature : Any> install(
-            feature: ClientFeature<TBuilder, TFeature>,
+            feature: HttpClientFeature<TBuilder, TFeature>,
             configure: TBuilder.() -> Unit = {}
     ) {
         val featureData = feature.prepare(configure)
@@ -27,12 +27,12 @@ class ClientConfig {
         }
     }
 
-    fun install(key: String, block: ClientScope.() -> Unit) {
+    fun install(key: String, block: HttpClientScope.() -> Unit) {
         customInterceptors[key] = block
     }
 
-    fun build(): ClientScope {
-        val scope = CallScope()
+    fun build(): HttpClientScope {
+        val scope = HttpCallScope()
         scope.attributes.put(CLIENT_CONFIG_KEY, this)
 
         features.values.forEach { scope.apply(it) }
@@ -50,11 +50,11 @@ class ClientConfig {
     }
 }
 
-fun ClientScope.config(block: ClientConfig.() -> Unit): ClientScope {
+fun HttpClientScope.config(block: ClientConfig.() -> Unit): HttpClientScope {
     val config = attributes.computeIfAbsent(CLIENT_CONFIG_KEY) { ClientConfig() }
     return config.clone().apply(block).build()
 }
 
-fun ClientScope.default(features: List<ClientFeature<Any, out Any>> = listOf(PlainText, IgnoreBody)) = config {
+fun HttpClientScope.default(features: List<HttpClientFeature<Any, out Any>> = listOf(HttpPlainText, HttpIgnoreBody)) = config {
     features.forEach { install(it) }
 }

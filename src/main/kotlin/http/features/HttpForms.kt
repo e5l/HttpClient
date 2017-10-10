@@ -1,9 +1,9 @@
 package http.features
 
-import http.pipeline.ClientScope
+import http.pipeline.HttpClientScope
 import http.pipeline.intercept
-import http.request.RequestBuilder
-import http.request.RequestPipeline
+import http.request.HttpRequestBuilder
+import http.request.HttpRequestPipeline
 import http.utils.safeAs
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Mapper
@@ -19,17 +19,16 @@ enum class FormType {
 
 data class FormData(val data: Any, val type: FormType = FormType.URL_ENCODED, val method: HttpMethod = HttpMethod.Get)
 
-class Forms {
-
-    companion object Feature : ClientFeature<Unit, Forms> {
-        override fun prepare(block: Unit.() -> Unit): Forms {
-            return Forms()
+class HttpForms {
+    companion object Feature : HttpClientFeature<Unit, HttpForms> {
+        override fun prepare(block: Unit.() -> Unit): HttpForms {
+            return HttpForms()
         }
 
-        override val key: AttributeKey<Forms> = AttributeKey("Forms")
+        override val key: AttributeKey<HttpForms> = AttributeKey("HttpForms")
 
-        override fun install(feature: Forms, scope: ClientScope) {
-            scope.requestPipeline.intercept(RequestPipeline.Transform) { builder: RequestBuilder ->
+        override fun install(feature: HttpForms, scope: HttpClientScope) {
+            scope.requestPipeline.intercept(HttpRequestPipeline.Transform) { builder: HttpRequestBuilder ->
                 val form = builder.payload.safeAs<FormData>() ?: return@intercept
 
                 when (form.type) {
@@ -42,7 +41,7 @@ class Forms {
                             else -> builder.payload = parameters.formUrlEncode()
                         }
                     }
-                    FormType.MULTIPART -> TODO("Forms")
+                    FormType.MULTIPART -> TODO("HttpForms")
                 }
             }
         }
@@ -51,7 +50,7 @@ class Forms {
 
 private fun serializeData(data: Any): List<Pair<String, String>> {
     val mapper = Mapper.OutMapper()
-    val ser = data::class.serializer() as KSerializer<Any>
-    mapper.write(ser, data)
+    val serializer = data::class.serializer() as KSerializer<Any>
+    mapper.write(serializer, data)
     return mapper.map.map { (key, value) -> key to value.toString() }
 }

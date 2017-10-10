@@ -1,13 +1,13 @@
 package http.features.cookies
 
-import http.features.ClientFeature
+import http.features.HttpClientFeature
 import http.features.feature
-import http.pipeline.ClientScope
-import http.request.RequestBuilder
-import http.request.RequestPipeline
+import http.pipeline.HttpClientScope
+import http.request.HttpRequestBuilder
+import http.request.HttpRequestPipeline
 import http.request.header
 import http.request.host
-import http.response.ResponsePipeline
+import http.response.HttpResponsePipeline
 import http.response.cookies
 import http.utils.safeAs
 import org.jetbrains.ktor.http.Cookie
@@ -15,7 +15,7 @@ import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.http.renderSetCookieHeader
 import org.jetbrains.ktor.util.AttributeKey
 
-class Cookies(private val storage: CookiesStorage) {
+class HttpCookies(private val storage: CookiesStorage) {
 
     operator fun get(host: String): Map<String, Cookie>? = storage[host]
 
@@ -32,28 +32,27 @@ class Cookies(private val storage: CookiesStorage) {
             defaults.add(block)
         }
 
-        fun build(): Cookies {
+        fun build(): HttpCookies {
             defaults.forEach { storage.apply(it) }
-            return Cookies(storage)
+            return HttpCookies(storage)
         }
     }
 
-    companion object Feature : ClientFeature<Configuration, Cookies> {
-        override fun prepare(configure: Configuration.() -> Unit): Cookies = Configuration().apply(configure).build()
+    companion object Feature : HttpClientFeature<Configuration, HttpCookies> {
+        override fun prepare(block: Configuration.() -> Unit): HttpCookies = Configuration().apply(block).build()
 
-        override val key: AttributeKey<Cookies> = AttributeKey("Cookies")
+        override val key: AttributeKey<HttpCookies> = AttributeKey("HttpCookies")
 
-        override fun install(feature: Cookies, scope: ClientScope) {
+        override fun install(feature: HttpCookies, scope: HttpClientScope) {
 
-            scope.requestPipeline.intercept(RequestPipeline.State) { requestData ->
-                val request = requestData.safeAs<RequestBuilder>() ?: return@intercept
-                val host = request.url.host
+            scope.requestPipeline.intercept(HttpRequestPipeline.State) { requestData ->
+                val request = requestData.safeAs<HttpRequestBuilder>() ?: return@intercept
                 feature.forEach(request.host) {
                     request.header(HttpHeaders.Cookie, renderSetCookieHeader(it))
                 }
             }
 
-            scope.responsePipeline.intercept(ResponsePipeline.State) { (_, request, response) ->
+            scope.responsePipeline.intercept(HttpResponsePipeline.State) { (_, request, response) ->
                 response.cookies().forEach {
                     feature.storage[request.host] = it
                 }
@@ -62,4 +61,4 @@ class Cookies(private val storage: CookiesStorage) {
     }
 }
 
-fun ClientScope.cookies(host: String): Map<String, Cookie> = feature(Cookies)?.get(host) ?: mapOf()
+fun HttpClientScope.cookies(host: String): Map<String, Cookie> = feature(HttpCookies)?.get(host) ?: mapOf()

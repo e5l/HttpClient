@@ -2,10 +2,10 @@ package http.backend.jvm
 
 import http.backend.HttpClientBackend
 import http.backend.HttpClientBackendFactory
-import http.request.Request
-import http.response.ResponseBuilder
+import http.request.HttpRequest
+import http.response.HttpResponseBuilder
 import http.utils.EmptyBody
-import http.utils.ProtocolVersion
+import http.utils.HttpProtocolVersion
 import http.utils.ReadChannelBody
 import http.utils.WriteChannelBody
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
@@ -36,7 +36,7 @@ class ApacheBackend : HttpClientBackend {
         backend.start()
     }
 
-    suspend override fun makeRequest(data: Request): ResponseBuilder {
+    suspend override fun makeRequest(data: HttpRequest): HttpResponseBuilder {
         val apacheBuilder = RequestBuilder.create(data.method.value)
         with(data) {
             apacheBuilder.uri = URIBuilder().apply {
@@ -85,7 +85,7 @@ class ApacheBackend : HttpClientBackend {
         val statusLine = response.statusLine
         val entity = response.entity
 
-        val builder = ResponseBuilder()
+        val builder = HttpResponseBuilder()
         builder.apply {
             statusCode = HttpStatusCode.fromValue(statusLine.statusCode)
             reason = statusLine.reasonPhrase
@@ -101,7 +101,7 @@ class ApacheBackend : HttpClientBackend {
             }
 
             with(statusLine.protocolVersion) {
-                version = ProtocolVersion(protocol, major, minor)
+                version = HttpProtocolVersion(protocol, major, minor)
             }
 
             payload = if (entity.isStreaming) ReadChannelBody(entity.content.toReadChannel()) else EmptyBody

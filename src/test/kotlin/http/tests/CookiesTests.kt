@@ -3,10 +3,10 @@ package http.tests
 import http.HttpClient
 import http.backend.jvm.ApacheBackend
 import http.features.cookies.ConstantCookieStorage
-import http.features.cookies.Cookies
+import http.features.cookies.HttpCookies
 import http.features.cookies.cookies
 import http.get
-import http.pipeline.ClientScope
+import http.pipeline.HttpClientScope
 import http.pipeline.config
 import http.tests.utils.TestWithKtor
 import kotlinx.coroutines.experimental.runBlocking
@@ -52,7 +52,7 @@ class CookiesTests : TestWithKtor() {
     @Test
     fun testAccept() {
         val client = HttpClient(ApacheBackend).config {
-            install(Cookies)
+            install(HttpCookies)
         }
 
         runBlocking { client.get<Unit>(port = 8080) }
@@ -68,7 +68,7 @@ class CookiesTests : TestWithKtor() {
     @Test
     fun testUpdate() {
         val client = HttpClient(ApacheBackend).config {
-            install(Cookies) {
+            install(HttpCookies) {
                 default {
                     set("localhost", Cookie("id", "1"))
                 }
@@ -87,7 +87,7 @@ class CookiesTests : TestWithKtor() {
     @Test
     fun testConstant() {
         val client = HttpClient(ApacheBackend).config {
-            install(Cookies) {
+            install(HttpCookies) {
                 storage = ConstantCookieStorage(Cookie("id", "1"))
             }
         }
@@ -107,8 +107,8 @@ class CookiesTests : TestWithKtor() {
          * c    d
          */
         val client = HttpClient(ApacheBackend)
-        val a = client.config { install(Cookies) { default { set("localhost", Cookie("id", "1")) } } }
-        val b = a.config { install(Cookies) { default { set("localhost", Cookie("id", "10")) } } }
+        val a = client.config { install(HttpCookies) { default { set("localhost", Cookie("id", "1")) } } }
+        val b = a.config { install(HttpCookies) { default { set("localhost", Cookie("id", "10")) } } }
         val c = a.config { }
         val d = b.config { }
 
@@ -150,5 +150,5 @@ class CookiesTests : TestWithKtor() {
 
     }
 
-    private fun ClientScope.getId() = cookies("localhost")["id"]?.value?.toInt()!!
+    private fun HttpClientScope.getId() = cookies("localhost")["id"]?.value?.toInt()!!
 }

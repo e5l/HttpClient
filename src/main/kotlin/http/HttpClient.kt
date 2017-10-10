@@ -3,28 +3,28 @@ package http
 import http.backend.HttpClientBackend
 import http.backend.HttpClientBackendFactory
 import http.call.HttpClientCall
-import http.pipeline.CallScope
-import http.pipeline.ClientScope
+import http.pipeline.HttpCallScope
+import http.pipeline.HttpClientScope
 import http.pipeline.config
 import http.pipeline.default
-import http.request.RequestBuilder
-import http.request.RequestPipeline
+import http.request.HttpRequestBuilder
+import http.request.HttpRequestPipeline
 import http.utils.safeAs
 
-class HttpClient private constructor(val backend: HttpClientBackend) : CallScope() {
+class HttpClient private constructor(val backend: HttpClientBackend) : HttpCallScope() {
 
     override fun close() {
         backend.close()
     }
 
     companion object {
-        operator fun invoke(backendFactory: HttpClientBackendFactory): ClientScope {
+        operator fun invoke(backendFactory: HttpClientBackendFactory): HttpClientScope {
             val backend = backendFactory()
 
             return HttpClient(backend).config {
                 install("backend") {
-                    requestPipeline.intercept(RequestPipeline.Send) { builder ->
-                        val request = builder.safeAs<RequestBuilder>()?.build() ?: return@intercept
+                    requestPipeline.intercept(HttpRequestPipeline.Send) { builder ->
+                        val request = builder.safeAs<HttpRequestBuilder>()?.build() ?: return@intercept
                         val response = backend.makeRequest(request)
                         proceedWith(HttpClientCall(request, response.build(), context))
                     }

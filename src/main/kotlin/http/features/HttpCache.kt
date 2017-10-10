@@ -1,13 +1,13 @@
 package http.features
 
 import http.call.HttpClientCall
-import http.pipeline.ClientScope
-import http.request.Request
-import http.request.RequestBuilder
-import http.request.RequestPipeline
-import http.response.Response
-import http.response.ResponseContainer
-import http.response.ResponsePipeline
+import http.pipeline.HttpClientScope
+import http.request.HttpRequest
+import http.request.HttpRequestBuilder
+import http.request.HttpRequestPipeline
+import http.response.HttpResponse
+import http.response.HttpResponseContainer
+import http.response.HttpResponsePipeline
 import http.utils.Headers
 import http.utils.HeadersBuilder
 import http.utils.Url
@@ -20,17 +20,17 @@ fun Iterable<Boolean>.all(): Boolean = all { it }
 
 private data class CacheEntity(
         val invariant: Map<String, Set<String>>,
-        val cache: Response
+        val cache: HttpResponse
 ) {
     fun match(headers: HeadersBuilder): Boolean = invariant.entries.mapNotNull { (name, values) ->
         headers.getAll(name)?.toSet()?.let { it == values }
     }.all()
 }
 
-class Cache {
+class HttpCache {
     private val responseCache = mutableMapOf<Url, CacheEntity>()
 
-    private fun cacheResponse(responseContainer: ResponseContainer) {
+    private fun cacheResponse(responseContainer: HttpResponseContainer) {
         val (_, request, response) = responseContainer
         if (response.statusCode != HttpStatusCode.OK && response.statusCode != HttpStatusCode.NotModified) return
 
@@ -47,7 +47,7 @@ class Cache {
         }
     }
 
-    private fun tryLoad(builder: RequestBuilder): Response? {
+    private fun tryLoad(builder: HttpRequestBuilder): HttpResponse? {
         val result = load(builder)
         if (result == null && builder.cacheControl.onlyIfCached) {
             throw NotFoundInCacheException(builder.build())
@@ -56,7 +56,7 @@ class Cache {
         return result
     }
 
-    private fun load(builder: RequestBuilder): Response? {
+    private fun load(builder: HttpRequestBuilder): HttpResponse? {
         val now = Date()
         val url = builder.url.build()
         val cachedResponse = responseCache[url]?.takeIf { it.match(builder.headers) }?.cache ?: return null
@@ -79,7 +79,7 @@ class Cache {
         return true
     }
 
-    private fun cacheWithVary(url: Url, varyHeaders: List<String>, requestHeaders: Headers, response: Response) {
+    private fun cacheWithVary(url: Url, varyHeaders: List<String>, requestHeaders: Headers, response: HttpResponse) {
         val invariant = varyHeaders.map { key ->
             key to (requestHeaders.getAll(key)?.toSet() ?: setOf())
         }.toMap()
@@ -87,25 +87,25 @@ class Cache {
         responseCache[url] = CacheEntity(invariant, response)
     }
 
-    companion object Feature : ClientFeature<Unit, Cache> {
-        override val key: AttributeKey<Cache> = AttributeKey("Cache")
+    companion object Feature : HttpClientFeature<Unit, HttpCache> {
+        override val key: AttributeKey<HttpCache> = AttributeKey("HttpCache")
 
-        override fun prepare(block: Unit.() -> Unit): Cache = Cache()
+        override fun prepare(block: Unit.() -> Unit): HttpCache = HttpCache()
 
-        override fun install(feature: Cache, scope: ClientScope) {
-            scope.requestPipeline.intercept(RequestPipeline.Send) { builder ->
-                if (builder !is RequestBuilder) return@intercept
+        override fun install(feature: HttpCache, scope: HttpClientScope) {
+            scope.requestPipeline.intercept(HttpRequestPipeline.Send) { builder ->
+                if (builder !is HttpRequestBuilder) return@intercept
 
                 feature.tryLoad(builder)?.let {
                     proceedWith(HttpClientCall(builder.build(), it, scope))
                 }
             }
 
-            scope.responsePipeline.intercept(ResponsePipeline.After) { responseData ->
+            scope.responsePipeline.intercept(HttpResponsePipeline.After) { responseData ->
                 feature.cacheResponse(responseData)
             }
         }
     }
 }
 
-class NotFoundInCacheException(val request: Request) : Exception()
+class NotFoundInCacheException(val request: HttpRequest) : Exception()

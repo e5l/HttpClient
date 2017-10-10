@@ -2,7 +2,6 @@ package http.pipeline
 
 import http.utils.safeAs
 
-
 inline fun <reified NewSubject : Any, Context : Any> Pipeline<*, Context>.intercept(
         phase: PipelinePhase,
         crossinline block: PipelineContext<NewSubject, Context>.(NewSubject) -> Unit) {

@@ -2,7 +2,7 @@ package http.utils
 
 import org.jetbrains.ktor.http.HttpHeaders
 
-abstract class RequestCacheControl {
+abstract class HttpRequestCacheControl {
     abstract val maxAge: Int?
     abstract val maxStale: Int?
     abstract val minFresh: Int?
@@ -13,7 +13,7 @@ abstract class RequestCacheControl {
 }
 
 
-abstract class ResponseCacheControl {
+abstract class HttpResponseCacheControl {
     abstract val mustRevalidate: Boolean
     abstract val noCache: Boolean
     abstract val noStore: Boolean
@@ -25,7 +25,7 @@ abstract class ResponseCacheControl {
     abstract val sMaxAge: Int?
 }
 
-class RequestCacheControlFromList(private val cacheControl: List<String>) : RequestCacheControl() {
+class HttpRequestCacheControlFromList(private val cacheControl: List<String>) : HttpRequestCacheControl() {
     override val maxAge: Int? = cacheControl.intProperty(CacheControl.MAX_AGE)
 
     override val maxStale: Int? = cacheControl.intProperty(CacheControl.MAX_STALE)
@@ -41,7 +41,7 @@ class RequestCacheControlFromList(private val cacheControl: List<String>) : Requ
     override val onlyIfCached: Boolean = cacheControl.booleanProperty(CacheControl.ONLY_IF_CACHED)
 }
 
-class ResponseCacheControlFromList(private val cacheControl: List<String>) : ResponseCacheControl() {
+class HttpResponseCacheControlFromList(private val cacheControl: List<String>) : HttpResponseCacheControl() {
     override val mustRevalidate: Boolean = cacheControl.booleanProperty(CacheControl.MUST_REVALIDATE)
 
     override val noCache: Boolean = cacheControl.booleanProperty(CacheControl.NO_CACHE)
@@ -66,24 +66,24 @@ private fun List<String>.booleanProperty(key: String): Boolean = contains(key)
 private fun List<String>.intProperty(key: String): Int? =
         find { it.startsWith(key) }?.split("=")?.getOrNull(1)?.toInt()
 
-fun Headers.computeRequestCacheControl(): RequestCacheControl {
+fun Headers.computeRequestCacheControl(): HttpRequestCacheControl {
     val rawHeader = getAll(HttpHeaders.CacheControl) ?: listOf()
-    return RequestCacheControlFromList(rawHeader)
+    return HttpRequestCacheControlFromList(rawHeader)
 }
 
-fun HeadersBuilder.computeRequestCacheControl(): RequestCacheControl {
+fun HeadersBuilder.computeRequestCacheControl(): HttpRequestCacheControl {
     val rawHeader = getAll(HttpHeaders.CacheControl) ?: listOf()
-    return RequestCacheControlFromList(rawHeader)
+    return HttpRequestCacheControlFromList(rawHeader)
 }
 
-fun Headers.computeResponseCacheControl(): ResponseCacheControl {
+fun Headers.computeResponseCacheControl(): HttpResponseCacheControl {
     val rawHeader = getAll(HttpHeaders.CacheControl) ?: listOf()
-    return ResponseCacheControlFromList(rawHeader)
+    return HttpResponseCacheControlFromList(rawHeader)
 }
 
-fun HeadersBuilder.computeResponseCacheControl(): ResponseCacheControl {
+fun HeadersBuilder.computeResponseCacheControl(): HttpResponseCacheControl {
     val rawHeader = getAll(HttpHeaders.CacheControl) ?: listOf()
-    return ResponseCacheControlFromList(rawHeader)
+    return HttpResponseCacheControlFromList(rawHeader)
 }
 
 object CacheControl {

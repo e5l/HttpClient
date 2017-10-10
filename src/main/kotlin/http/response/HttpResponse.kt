@@ -4,20 +4,20 @@ import http.utils.*
 import org.jetbrains.ktor.http.HttpStatusCode
 import java.util.*
 
-data class Response(
+data class HttpResponse(
         val statusCode: HttpStatusCode,
         val reason: String,
-        val version: ProtocolVersion,
+        val version: HttpProtocolVersion,
         val headers: Headers,
         val payload: Any,
         val requestTime: Date,
         val responseTime: Date
 ) {
-    val cacheControl: ResponseCacheControl by lazy { headers.computeResponseCacheControl() }
+    val cacheControl: HttpResponseCacheControl by lazy { headers.computeResponseCacheControl() }
 }
 
-class ResponseBuilder() {
-    constructor(response: Response) : this() {
+class HttpResponseBuilder() {
+    constructor(response: HttpResponse) : this() {
         statusCode = response.statusCode
         reason = response.reason
         version = response.version
@@ -29,18 +29,18 @@ class ResponseBuilder() {
 
     lateinit var statusCode: HttpStatusCode
     lateinit var reason: String
-    lateinit var version: ProtocolVersion
+    lateinit var version: HttpProtocolVersion
     lateinit var payload: Any
     lateinit var requestTime: Date
     lateinit var responseTime: Date
 
     val headers = HeadersBuilder()
 
-    val cacheControl: ResponseCacheControl get() = headers.computeResponseCacheControl()
+    val cacheControl: HttpResponseCacheControl get() = headers.computeResponseCacheControl()
 
     fun headers(block: HeadersBuilder.() -> Unit) {
         headers.apply(block)
     }
 
-    fun build(): Response = Response(statusCode, reason, version, valuesOf(headers), payload, requestTime, responseTime)
+    fun build(): HttpResponse = HttpResponse(statusCode, reason, version, valuesOf(headers), payload, requestTime, responseTime)
 }

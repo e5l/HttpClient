@@ -1,11 +1,11 @@
 package http.features
 
-import http.pipeline.ClientScope
+import http.pipeline.HttpClientScope
 import http.pipeline.intercept
-import http.request.RequestBuilder
-import http.request.RequestPipeline
-import http.response.ResponseBuilder
-import http.response.ResponsePipeline
+import http.request.HttpRequestBuilder
+import http.request.HttpRequestPipeline
+import http.response.HttpResponseBuilder
+import http.response.HttpResponsePipeline
 import http.utils.*
 import org.jetbrains.ktor.cio.ByteBufferWriteChannel
 import org.jetbrains.ktor.cio.toInputStream
@@ -18,9 +18,9 @@ import org.jetbrains.ktor.util.AttributeKey
 import java.io.InputStreamReader
 import java.nio.charset.Charset
 
-class PlainText(val defaultCharset: Charset) {
+class HttpPlainText(val defaultCharset: Charset) {
 
-    fun read(response: ResponseBuilder): String? {
+    fun read(response: HttpResponseBuilder): String? {
         val payload = response.payload.safeAs<HttpMessageBody>() ?: return null
         val charset = response.headers.charset() ?: defaultCharset
 
@@ -34,7 +34,7 @@ class PlainText(val defaultCharset: Charset) {
         }
     }
 
-    fun write(requestBuilder: RequestBuilder): HttpMessageBody? {
+    fun write(requestBuilder: HttpRequestBuilder): HttpMessageBody? {
         val requestString = requestBuilder.payload.safeAs<String>() ?: return null
         val charset = requestBuilder.charset ?: defaultCharset
         val payload = requestString.toByteArray(charset)
@@ -49,20 +49,20 @@ class PlainText(val defaultCharset: Charset) {
     class Configuration {
         var defaultCharset: Charset = Charset.defaultCharset()
 
-        fun build(): PlainText = PlainText(defaultCharset)
+        fun build(): HttpPlainText = HttpPlainText(defaultCharset)
     }
 
-    companion object Feature : ClientFeature<Configuration, PlainText> {
-        override val key = AttributeKey<PlainText>("PlainText")
+    companion object Feature : HttpClientFeature<Configuration, HttpPlainText> {
+        override val key = AttributeKey<HttpPlainText>("HttpPlainText")
 
-        override fun prepare(configure: Configuration.() -> Unit): PlainText = Configuration().apply(configure).build()
+        override fun prepare(block: Configuration.() -> Unit): HttpPlainText = Configuration().apply(block).build()
 
-        override fun install(feature: PlainText, scope: ClientScope) {
-            scope.requestPipeline.intercept(RequestPipeline.Transform) { builder: RequestBuilder ->
+        override fun install(feature: HttpPlainText, scope: HttpClientScope) {
+            scope.requestPipeline.intercept(HttpRequestPipeline.Transform) { builder: HttpRequestBuilder ->
                 builder.payload = feature.write(builder) ?: return@intercept
             }
 
-            scope.responsePipeline.intercept(ResponsePipeline.Transform) { (expectedType, _, response) ->
+            scope.responsePipeline.intercept(HttpResponsePipeline.Transform) { (expectedType, _, response) ->
                 if (expectedType != String::class) {
                     return@intercept
                 }

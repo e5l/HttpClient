@@ -1,21 +1,18 @@
 package http.call
 
-import http.pipeline.ClientScope
-import http.request.Request
-import http.request.RequestBuilder
-import http.response.Response
-import http.response.ResponseBuilder
-import http.response.ResponseContainer
+import http.pipeline.HttpClientScope
+import http.request.*
+import http.response.*
 import kotlin.reflect.KClass
 
 
 class HttpClientCall(
-        val request: Request,
-        val response: Response,
-        private val scope: ClientScope
+        val request: HttpRequest,
+        val response: HttpResponse,
+        private val scope: HttpClientScope
 ) {
-    suspend fun receive(expectedType: KClass<*> = Unit::class): ResponseContainer {
-        val subject = ResponseContainer(expectedType, request, ResponseBuilder(response))
+    suspend fun receive(expectedType: KClass<*> = Unit::class): HttpResponseContainer {
+        val subject = HttpResponseContainer(expectedType, request, HttpResponseBuilder(response))
         val container = scope.responsePipeline.execute(scope, subject)
 
         assert(container.response.payload::class == expectedType)
@@ -23,11 +20,11 @@ class HttpClientCall(
     }
 }
 
-suspend fun ClientScope.call(builder: RequestBuilder): HttpClientCall =
+suspend fun HttpClientScope.call(builder: HttpRequestBuilder): HttpClientCall =
         requestPipeline.execute(this, builder) as HttpClientCall
 
-suspend fun ClientScope.call(block: RequestBuilder.() -> Unit): HttpClientCall =
-        call(RequestBuilder().apply(block))
+suspend fun HttpClientScope.call(block: HttpRequestBuilder.() -> Unit): HttpClientCall =
+        call(HttpRequestBuilder().apply(block))
 
 suspend inline fun <reified T> HttpClientCall.receive(): T = receive(T::class).response.payload as T
 

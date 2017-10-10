@@ -1,12 +1,12 @@
 package http.response
 
-import http.pipeline.ClientScope
+import http.pipeline.HttpClientScope
 import http.pipeline.Pipeline
 import http.pipeline.PipelinePhase
-import http.request.Request
+import http.request.HttpRequest
 import kotlin.reflect.KClass
 
-class ResponsePipeline : Pipeline<ResponseContainer, ClientScope>(Receive, Parse, Transform, State, After) {
+class HttpResponsePipeline : Pipeline<HttpResponseContainer, HttpClientScope>(Receive, Parse, Transform, State, After) {
     companion object Phases {
         val Receive = PipelinePhase("Receive")
         val Parse = PipelinePhase("Parse")
@@ -16,4 +16,4 @@ class ResponsePipeline : Pipeline<ResponseContainer, ClientScope>(Receive, Parse
     }
 }
 
-data class ResponseContainer(val expectedType: KClass<*>, val request: Request, val response: ResponseBuilder)
+data class HttpResponseContainer(val expectedType: KClass<*>, val request: HttpRequest, val response: HttpResponseBuilder)

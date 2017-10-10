@@ -1,13 +1,9 @@
-package http
+package http.utils
 
-import http.request.RequestBuilder
-import http.utils.ParametersBuilder
-import http.utils.Url
-import http.utils.UrlBuilder
+import http.request.HttpRequestBuilder
 import java.net.URL
 
-
-fun RequestBuilder.url(
+fun HttpRequestBuilder.url(
         scheme: String = "http",
         host: String = "localhost",
         port: Int = 80,
@@ -21,7 +17,7 @@ fun RequestBuilder.url(
     }
 }
 
-fun RequestBuilder.url(data: Url) {
+fun HttpRequestBuilder.url(data: Url) {
     url.takeFrom(data)
 }
 

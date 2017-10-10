@@ -1,10 +1,10 @@
 package http.request
 
-import http.pipeline.ClientScope
+import http.pipeline.HttpClientScope
 import http.pipeline.Pipeline
 import http.pipeline.PipelinePhase
 
-class RequestPipeline : Pipeline<Any, ClientScope>(Before, State, Transform, Render, Send) {
+class HttpRequestPipeline : Pipeline<Any, HttpClientScope>(Before, State, Transform, Render, Send) {
     companion object Phases {
         val Before = PipelinePhase("Before")
         val State = PipelinePhase("State")
