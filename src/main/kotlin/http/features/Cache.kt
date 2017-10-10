@@ -2,12 +2,16 @@ package http.features
 
 import http.call.HttpClientCall
 import http.pipeline.ClientScope
+import http.request.Request
 import http.request.RequestBuilder
 import http.request.RequestPipeline
 import http.response.Response
 import http.response.ResponseContainer
 import http.response.ResponsePipeline
-import http.utils.*
+import http.utils.Headers
+import http.utils.HeadersBuilder
+import http.utils.Url
+import http.utils.vary
 import org.jetbrains.ktor.http.HttpStatusCode
 import org.jetbrains.ktor.util.AttributeKey
 import java.util.*
@@ -18,25 +22,9 @@ private data class CacheEntity(
         val invariant: Map<String, Set<String>>,
         val cache: Response
 ) {
-    val received: Date = cache.headers.date() ?: Date()
-
     fun match(headers: HeadersBuilder): Boolean = invariant.entries.mapNotNull { (name, values) ->
         headers.getAll(name)?.toSet()?.let { it == values }
     }.all()
-
-    fun expired(): Boolean {
-        val now = Date()
-
-        cache.headers.maxAge()?.let {
-            // TODO: fix time difference
-            return now.time - received.time < it * 1000 }
-
-        if (now.after(cache.headers.expires())) {
-            return true
-        }
-
-        return false
-    }
 }
 
 class Cache {
@@ -45,7 +33,14 @@ class Cache {
     private fun cacheResponse(responseContainer: ResponseContainer) {
         val (_, request, response) = responseContainer
         if (response.statusCode != HttpStatusCode.OK && response.statusCode != HttpStatusCode.NotModified) return
-        if (response.headers.noCache() || response.headers.noStore()) return
+
+        with(request.cacheControl) {
+            if (noCache || noStore) return
+        }
+
+        with(response.cacheControl) {
+            if (noCache || noStore) return
+        }
 
         response.headers.vary()?.let { vary ->
             cacheWithVary(request.url, vary, request.headers, response.build())
@@ -53,22 +48,36 @@ class Cache {
     }
 
     private fun tryLoad(builder: RequestBuilder): Response? {
-        val url = builder.url.build()
-        return load(url, builder.headers) ?: run {
-            if (builder.headers.onlyIfCached()) {
-                error("Not found in cache")
-            }
-
-            null
+        val result = load(builder)
+        if (result == null && builder.cacheControl.onlyIfCached) {
+            throw NotFoundInCacheException(builder.build())
         }
+
+        return result
     }
 
-    private fun load(url: Url, headers: HeadersBuilder): Response? {
-        if (headers.noCache() || headers.noStore()) return null
+    private fun load(builder: RequestBuilder): Response? {
+        val now = Date()
+        val url = builder.url.build()
+        val cachedResponse = responseCache[url]?.takeIf { it.match(builder.headers) }?.cache ?: return null
 
-        return responseCache[url]?.takeIf { it.match(headers) }?.cache
+        return if (isValid(builder, cachedResponse)) cachedResponse else null
     }
 
+    private fun isValid(builder: HttpRequestBuilder, response: HttpResponse): Boolean {
+        val now = Date().time
+        val requestTime = response.requestTime.time
+
+        with(response.cacheControl) {
+            maxAge?.let { if (requestTime + it > now) return false }
+        }
+
+        with(builder.cacheControl) {
+            maxAge?.let { if (requestTime + it > now) return false }
+        }
+
+        return true
+    }
 
     private fun cacheWithVary(url: Url, varyHeaders: List<String>, requestHeaders: Headers, response: Response) {
         val invariant = varyHeaders.map { key ->
@@ -98,3 +107,5 @@ class Cache {
         }
     }
 }
+
+class NotFoundInCacheException(val request: Request) : Exception()

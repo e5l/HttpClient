@@ -24,6 +24,7 @@ import org.jetbrains.ktor.cio.toInputStream
 import org.jetbrains.ktor.cio.toReadChannel
 import org.jetbrains.ktor.http.HttpStatusCode
 import org.jetbrains.ktor.util.flattenEntries
+import java.util.*
 
 
 class ApacheBackend : HttpClientBackend {
@@ -64,6 +65,7 @@ class ApacheBackend : HttpClientBackend {
 
         val apacheRequest = apacheBuilder.build()
 
+        val startTime = Date()
         val response = suspendCancellableCoroutine<HttpResponse> { continuation ->
             backend.execute(apacheRequest, object : FutureCallback<HttpResponse> {
                 override fun failed(exception: Exception) {
@@ -87,6 +89,8 @@ class ApacheBackend : HttpClientBackend {
         builder.apply {
             statusCode = HttpStatusCode.fromValue(statusLine.statusCode)
             reason = statusLine.reasonPhrase
+            requestTime = startTime
+            responseTime = Date()
 
             headers {
                 response.allHeaders.forEach { headerLine ->
