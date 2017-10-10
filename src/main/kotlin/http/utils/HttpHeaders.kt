@@ -1,19 +1,33 @@
 package http.utils
 
+import http.request.HttpRequestBuilder
+import http.response.HttpResponse
 import org.jetbrains.ktor.http.ContentType
 import org.jetbrains.ktor.http.HttpHeaders
 import org.jetbrains.ktor.http.charset
 import org.jetbrains.ktor.util.ValuesMap
 import org.jetbrains.ktor.util.ValuesMapBuilder
 import java.nio.charset.Charset
+import java.text.SimpleDateFormat
+import java.util.*
 
 typealias Headers = ValuesMap
 
 typealias HeadersBuilder = ValuesMapBuilder
 
-fun HeadersBuilder.vary(): List<String>? = getAll(HttpHeaders.Vary)?.let { headers ->
-    headers.flatMap { it.split(",") }.map { it.trim() }
+val HTTP_DATE_FORMAT: SimpleDateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US).apply {
+    timeZone = TimeZone.getTimeZone("GMT")
 }
 
 fun HeadersBuilder.charset(): Charset? = get(HttpHeaders.ContentType)?.let { ContentType.parse(it).charset() }
 fun HeadersBuilder.userAgent(content: String) = set(HttpHeaders.UserAgent, content)
+
+fun HttpResponse.vary(): List<String>? = headers[HttpHeaders.Vary]?.split(",")?.map { it.trim() }
+
+fun HttpRequestBuilder.ifModifiedSince(date: Date) =
+        headers.set(HttpHeaders.IfModifiedSince, HTTP_DATE_FORMAT.format(date))
+
+fun HttpRequestBuilder.ifMatch(value: String) = headers.set(HttpHeaders.IfMatch, value)
+
+fun HttpResponse.lastModified(): Date? = headers[HttpHeaders.LastModified]?.let { HTTP_DATE_FORMAT.parse(it) }
+fun HttpResponse.etag(): String? = headers[HttpHeaders.ETag]

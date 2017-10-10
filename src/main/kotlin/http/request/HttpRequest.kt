@@ -28,6 +28,6 @@ class HttpRequestBuilder() {
 
     fun url(block: UrlBuilder.() -> Unit) = url.block()
 
-    fun build(): HttpRequest = HttpRequest(url.build(), method, headers.build(), payload)
+    fun build(): HttpRequest = HttpRequest(url.build(), method, valuesOf(headers), payload)
 }
 
