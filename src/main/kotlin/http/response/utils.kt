@@ -1,9 +1,10 @@
 package http.response
 
-import org.jetbrains.ktor.http.ContentType
-import org.jetbrains.ktor.http.Cookie
-import org.jetbrains.ktor.http.HttpHeaders
-import org.jetbrains.ktor.http.parseServerSetCookieHeader
+import io.ktor.http.ContentType
+import io.ktor.http.Cookie
+import io.ktor.http.HttpHeaders
+import io.ktor.http.parseServerSetCookieHeader
+
 
 fun HttpResponseBuilder.contentType(): ContentType? =
         headers[HttpHeaders.ContentType]?.let { ContentType.parse(it) }

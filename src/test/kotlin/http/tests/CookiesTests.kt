@@ -9,17 +9,15 @@ import http.get
 import http.pipeline.HttpClientScope
 import http.pipeline.config
 import http.tests.utils.TestWithKtor
+import io.ktor.host.ApplicationHost
+import io.ktor.host.embeddedServer
+import io.ktor.netty.Netty
+import io.ktor.routing.routing
+import io.ktor.routing.get
+import io.ktor.http.HttpStatusCode
+import io.ktor.response.*
+import io.ktor.http.Cookie
 import kotlinx.coroutines.experimental.runBlocking
-import org.jetbrains.ktor.host.ApplicationHost
-import org.jetbrains.ktor.host.embeddedServer
-import org.jetbrains.ktor.http.Cookie
-import org.jetbrains.ktor.http.HttpStatusCode
-import org.jetbrains.ktor.netty.Netty
-import org.jetbrains.ktor.pipeline.call
-import org.jetbrains.ktor.response.respond
-import org.jetbrains.ktor.response.respondText
-import org.jetbrains.ktor.routing.get
-import org.jetbrains.ktor.routing.routing
 import org.junit.Test
 
 
@@ -28,23 +26,23 @@ class CookiesTests : TestWithKtor() {
         routing {
             get("/") {
                 val cookie = Cookie("hello-cookie", "my-awesome-value")
-                call.response.cookies.append(cookie)
+                context.response.cookies.append(cookie)
 
-                call.respond("Done")
+                context.respond("Done")
             }
             get("/update-user-id") {
                 val id = run {
-                    call.request.cookies["id"]?.toInt() ?: let {
-                        call.response.status(HttpStatusCode.Forbidden)
-                        call.respondText("Forbidden")
+                    context.request.cookies["id"]?.toInt() ?: let {
+                        context.response.status(HttpStatusCode.Forbidden)
+                        context.respondText("Forbidden")
                         return@get
                     }
                 }
 
                 val cookie = Cookie("id", (id + 1).toString())
-                call.response.cookies.append(cookie)
+                context.response.cookies.append(cookie)
 
-                call.respond("Done")
+                context.respond("Done")
             }
         }
     }

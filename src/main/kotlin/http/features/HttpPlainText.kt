@@ -7,14 +7,14 @@ import http.request.HttpRequestPipeline
 import http.response.HttpResponseBuilder
 import http.response.HttpResponsePipeline
 import http.utils.*
-import org.jetbrains.ktor.cio.ByteBufferWriteChannel
-import org.jetbrains.ktor.cio.toInputStream
-import org.jetbrains.ktor.cio.toReadChannel
-import org.jetbrains.ktor.http.ContentType
-import org.jetbrains.ktor.http.HttpHeaders
-import org.jetbrains.ktor.http.response.contentType
-import org.jetbrains.ktor.http.withCharset
-import org.jetbrains.ktor.util.AttributeKey
+import io.ktor.cio.ByteBufferWriteChannel
+import io.ktor.cio.toInputStream
+import io.ktor.cio.toReadChannel
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.response.contentType
+import io.ktor.http.withCharset
+import io.ktor.util.AttributeKey
 import java.io.InputStreamReader
 import java.nio.charset.Charset
 

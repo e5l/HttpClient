@@ -1,7 +1,7 @@
 package http.utils
 
-import org.jetbrains.ktor.util.ValuesMap
-import org.jetbrains.ktor.util.ValuesMapBuilder
+import io.ktor.util.ValuesMap
+import io.ktor.util.ValuesMapBuilder
 
 typealias Parameters = ValuesMap
 

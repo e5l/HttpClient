@@ -10,10 +10,10 @@ import http.request.host
 import http.response.HttpResponsePipeline
 import http.response.cookies
 import http.utils.safeAs
-import org.jetbrains.ktor.http.Cookie
-import org.jetbrains.ktor.http.HttpHeaders
-import org.jetbrains.ktor.http.renderSetCookieHeader
-import org.jetbrains.ktor.util.AttributeKey
+import io.ktor.http.Cookie
+import io.ktor.http.HttpHeaders
+import io.ktor.http.renderSetCookieHeader
+import io.ktor.util.AttributeKey
 
 class HttpCookies(private val storage: CookiesStorage) {
 

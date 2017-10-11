@@ -8,19 +8,18 @@ import http.get
 import http.pipeline.HttpClientScope
 import http.pipeline.config
 import http.tests.utils.TestWithKtor
+import io.ktor.host.ApplicationHost
+import io.ktor.host.embeddedServer
+import io.ktor.http.ContentType
+import io.ktor.netty.Netty
+import io.ktor.routing.*
+import io.ktor.pipeline.*
+import io.ktor.request.*
+import io.ktor.response.*
 import org.junit.Assert.assertEquals
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JSON
-import org.jetbrains.ktor.host.ApplicationHost
-import org.jetbrains.ktor.host.embeddedServer
-import org.jetbrains.ktor.http.ContentType
-import org.jetbrains.ktor.netty.Netty
-import org.jetbrains.ktor.pipeline.call
-import org.jetbrains.ktor.request.receiveText
-import org.jetbrains.ktor.response.respondText
-import org.jetbrains.ktor.routing.get
-import org.jetbrains.ktor.routing.routing
 import org.junit.Test
 
 class JsonTests : TestWithKtor() {

@@ -2,7 +2,7 @@ package http.pipeline
 
 import http.request.HttpRequestPipeline
 import http.response.HttpResponsePipeline
-import org.jetbrains.ktor.util.Attributes
+import io.ktor.util.Attributes
 import java.io.Closeable
 
 sealed class HttpClientScope : Closeable {

@@ -10,9 +10,9 @@ import http.response.HttpResponse
 import http.response.HttpResponseBuilder
 import http.response.HttpResponsePipeline
 import http.utils.*
-import org.jetbrains.ktor.http.HttpMethod
-import org.jetbrains.ktor.http.HttpStatusCode
-import org.jetbrains.ktor.util.AttributeKey
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.util.AttributeKey
 import java.util.*
 
 fun Iterable<Boolean>.all(): Boolean = all { it }

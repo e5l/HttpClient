@@ -1,7 +1,8 @@
 package http.request
 
-import org.jetbrains.ktor.http.ContentType
-import org.jetbrains.ktor.http.HttpHeaders
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+
 
 val HttpRequest.host get() = url.host
 val HttpRequestBuilder.host get() = url.host

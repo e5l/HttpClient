@@ -2,7 +2,7 @@ package http.tests.utils
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import org.jetbrains.ktor.host.ApplicationHost
+import io.ktor.host.ApplicationHost
 import org.junit.After
 import org.junit.Before
 import org.slf4j.LoggerFactory

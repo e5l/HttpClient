@@ -1,7 +1,7 @@
 package http.response
 
 import http.utils.*
-import org.jetbrains.ktor.http.HttpStatusCode
+import io.ktor.http.HttpStatusCode
 import java.util.*
 
 data class HttpResponse(

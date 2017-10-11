@@ -1,6 +1,7 @@
 package http.utils
 
-import org.jetbrains.ktor.http.HttpHeaders
+import io.ktor.http.HttpHeaders
+
 
 abstract class HttpRequestCacheControl {
     abstract val maxAge: Int?

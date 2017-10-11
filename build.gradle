@@ -35,15 +35,15 @@ dependencies {
     compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
 
     compile 'com.github.e5l.ktor:ktor-utils:http-SNAPSHOT'
-    compile 'com.github.e5l.ktor:http-core:http-SNAPSHOT'
+    compile 'com.github.e5l.ktor:ktor-http:http-SNAPSHOT'
 
     compile "org.apache.httpcomponents:httpasyncclient:4.1.3"
     compile "com.google.code.gson:gson:2.8.2"
 
 
     testCompile "ch.qos.logback:logback-classic:1.2.1"
-    testCompile "com.github.e5l.ktor:ktor-netty:http-SNAPSHOT"
-    testCompile "com.github.e5l.ktor:ktor-core:http-SNAPSHOT"
+    testCompile "com.github.e5l.ktor:ktor-server-netty:http-SNAPSHOT"
+    testCompile "com.github.e5l.ktor:ktor-server-core:http-SNAPSHOT"
     testCompile "junit:junit:4.12"
 }
 

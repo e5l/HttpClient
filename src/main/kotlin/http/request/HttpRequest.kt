@@ -1,7 +1,7 @@
 package http.request
 
 import http.utils.*
-import org.jetbrains.ktor.http.HttpMethod
+import io.ktor.http.HttpMethod
 import java.nio.charset.Charset
 
 

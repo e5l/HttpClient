@@ -1,8 +1,8 @@
 package http.features
 
 import http.pipeline.HttpClientScope
-import org.jetbrains.ktor.util.AttributeKey
-import org.jetbrains.ktor.util.Attributes
+import io.ktor.util.AttributeKey
+import io.ktor.util.Attributes
 
 internal val FEATURE_INSTALLED_LIST = AttributeKey<Attributes>("ApplicationFeatureRegistry")
 

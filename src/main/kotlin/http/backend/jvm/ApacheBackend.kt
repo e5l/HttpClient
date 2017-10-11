@@ -8,6 +8,11 @@ import http.utils.EmptyBody
 import http.utils.HttpProtocolVersion
 import http.utils.ReadChannelBody
 import http.utils.WriteChannelBody
+import io.ktor.cio.ByteBufferWriteChannel
+import io.ktor.cio.toInputStream
+import io.ktor.cio.toReadChannel
+import io.ktor.http.HttpStatusCode
+import io.ktor.util.flattenEntries
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import org.apache.http.HttpResponse
 import org.apache.http.client.config.CookieSpecs
@@ -19,11 +24,6 @@ import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.entity.InputStreamEntity
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient
 import org.apache.http.impl.nio.client.HttpAsyncClients
-import org.jetbrains.ktor.cio.ByteBufferWriteChannel
-import org.jetbrains.ktor.cio.toInputStream
-import org.jetbrains.ktor.cio.toReadChannel
-import org.jetbrains.ktor.http.HttpStatusCode
-import org.jetbrains.ktor.util.flattenEntries
 import java.util.*
 
 

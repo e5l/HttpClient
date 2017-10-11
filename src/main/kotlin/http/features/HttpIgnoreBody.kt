@@ -2,7 +2,7 @@ package http.features
 
 import http.pipeline.HttpClientScope
 import http.response.HttpResponsePipeline
-import org.jetbrains.ktor.util.AttributeKey
+import io.ktor.util.AttributeKey
 
 class HttpIgnoreBody {
     companion object Feature : HttpClientFeature<Unit, HttpIgnoreBody> {

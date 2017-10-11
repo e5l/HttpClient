@@ -4,8 +4,8 @@ import http.features.HttpClientFeature
 import http.features.FEATURE_INSTALLED_LIST
 import http.features.HttpIgnoreBody
 import http.features.HttpPlainText
-import org.jetbrains.ktor.util.AttributeKey
-import org.jetbrains.ktor.util.Attributes
+import io.ktor.util.AttributeKey
+import io.ktor.util.Attributes
 
 private val CLIENT_CONFIG_KEY = AttributeKey<ClientConfig>("ClientConfig")
 

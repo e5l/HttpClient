@@ -10,8 +10,8 @@ import http.request.accept
 import http.response.HttpResponsePipeline
 import http.response.contentType
 import http.utils.safeAs
-import org.jetbrains.ktor.http.ContentType
-import org.jetbrains.ktor.util.AttributeKey
+import io.ktor.http.ContentType
+import io.ktor.util.AttributeKey
 
 class Json(val serializer: JsonSerializer) {
 

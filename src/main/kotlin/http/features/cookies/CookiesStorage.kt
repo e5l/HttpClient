@@ -1,6 +1,7 @@
 package http.features.cookies
 
-import org.jetbrains.ktor.http.Cookie
+import io.ktor.http.Cookie
+
 
 interface CookiesStorage {
     operator fun get(host: String): Map<String, Cookie>?
@@ -23,8 +24,6 @@ open class AcceptAllCookiesStorage : CookiesStorage {
             data[host]?.set(cookie.name, cookie)
         }
     }
-
-
 
     override fun forEach(host: String, block: (Cookie) -> Unit) {
         synchronized(this) {

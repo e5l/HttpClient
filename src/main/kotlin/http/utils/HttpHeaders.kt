@@ -2,11 +2,11 @@ package http.utils
 
 import http.request.HttpRequestBuilder
 import http.response.HttpResponse
-import org.jetbrains.ktor.http.ContentType
-import org.jetbrains.ktor.http.HttpHeaders
-import org.jetbrains.ktor.http.charset
-import org.jetbrains.ktor.util.ValuesMap
-import org.jetbrains.ktor.util.ValuesMapBuilder
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.charset
+import io.ktor.util.ValuesMap
+import io.ktor.util.ValuesMapBuilder
 import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.util.*

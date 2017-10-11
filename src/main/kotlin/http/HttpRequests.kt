@@ -6,7 +6,7 @@ import http.pipeline.HttpClientScope
 import http.request.HttpRequestBuilder
 import http.utils.takeFrom
 import http.utils.url
-import org.jetbrains.ktor.http.HttpMethod
+import io.ktor.http.HttpMethod
 import java.net.URL
 
 suspend inline fun <reified T> HttpClientScope.request(builder: HttpRequestBuilder = HttpRequestBuilder()): T =

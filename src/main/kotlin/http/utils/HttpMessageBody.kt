@@ -1,7 +1,8 @@
 package http.utils
 
-import org.jetbrains.ktor.cio.ReadChannel
-import org.jetbrains.ktor.cio.WriteChannel
+import io.ktor.cio.ReadChannel
+import io.ktor.cio.WriteChannel
+
 
 sealed class HttpMessageBody
 class ReadChannelBody(val channel: ReadChannel) : HttpMessageBody()

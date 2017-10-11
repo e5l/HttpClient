@@ -5,12 +5,12 @@ import http.pipeline.intercept
 import http.request.HttpRequestBuilder
 import http.request.HttpRequestPipeline
 import http.utils.safeAs
+import io.ktor.http.HttpMethod
+import io.ktor.http.formUrlEncode
+import io.ktor.util.AttributeKey
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Mapper
 import kotlinx.serialization.serializer
-import org.jetbrains.ktor.http.HttpMethod
-import org.jetbrains.ktor.http.formUrlEncode
-import org.jetbrains.ktor.util.AttributeKey
 
 enum class FormType {
     URL_ENCODED,

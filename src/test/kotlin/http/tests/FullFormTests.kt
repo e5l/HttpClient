@@ -6,16 +6,14 @@ import http.call.call
 import http.receiveText
 import http.request
 import http.tests.utils.TestWithKtor
+import io.ktor.host.embeddedServer
+import io.ktor.http.HttpMethod
+import io.ktor.netty.Netty
+import io.ktor.routing.*
+import io.ktor.pipeline.*
+import io.ktor.request.*
+import io.ktor.response.*
 import kotlinx.coroutines.experimental.runBlocking
-import org.jetbrains.ktor.host.embeddedServer
-import org.jetbrains.ktor.http.HttpMethod
-import org.jetbrains.ktor.netty.Netty
-import org.jetbrains.ktor.pipeline.call
-import org.jetbrains.ktor.request.receive
-import org.jetbrains.ktor.response.respondText
-import org.jetbrains.ktor.routing.get
-import org.jetbrains.ktor.routing.post
-import org.jetbrains.ktor.routing.routing
 import org.junit.Test
 
 class FullFormTests : TestWithKtor() {

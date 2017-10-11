@@ -1,6 +1,6 @@
 package http.pipeline
 
-import org.jetbrains.ktor.util.Attributes
+import io.ktor.util.Attributes
 import java.util.*
 
 
