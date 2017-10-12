@@ -64,6 +64,7 @@ class ApacheBackend : HttpClientBackend {
         }?.let { apacheBuilder.entity = it }
 
         val apacheRequest = apacheBuilder.build()
+        print("APACHE: $apacheRequest: ${apacheRequest.allHeaders.joinToString()} ")
 
         val startTime = Date()
         val response = suspendCancellableCoroutine<HttpResponse> { continuation ->
@@ -82,6 +83,7 @@ class ApacheBackend : HttpClientBackend {
             })
         }
 
+        println("DONE")
         val statusLine = response.statusLine
         val entity = response.entity
 
@@ -94,9 +96,7 @@ class ApacheBackend : HttpClientBackend {
 
             headers {
                 response.allHeaders.forEach { headerLine ->
-                    headerLine.elements.forEach line@ {
-                        append(headerLine.name, it.toString())
-                    }
+                    append(headerLine.name, headerLine.value)
                 }
             }
 
@@ -104,7 +104,8 @@ class ApacheBackend : HttpClientBackend {
                 version = HttpProtocolVersion(protocol, major, minor)
             }
 
-            payload = if (entity.isStreaming) ReadChannelBody(entity.content.toReadChannel()) else EmptyBody
+            payload = if (entity?.isStreaming == true) ReadChannelBody(entity.content.toReadChannel()) else EmptyBody
+
         }
 
         return builder

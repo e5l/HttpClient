@@ -1,14 +1,11 @@
 package http.utils
 
-import http.request.HttpRequestBuilder
-import http.response.HttpResponse
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.charset
-import io.ktor.util.ValuesMap
-import io.ktor.util.ValuesMapBuilder
-import java.nio.charset.Charset
-import java.text.SimpleDateFormat
+import http.request.*
+import http.response.*
+import io.ktor.http.*
+import io.ktor.util.*
+import java.nio.charset.*
+import java.text.*
 import java.util.*
 
 typealias Headers = ValuesMap
@@ -24,10 +21,14 @@ fun HeadersBuilder.userAgent(content: String) = set(HttpHeaders.UserAgent, conte
 
 fun HttpResponse.vary(): List<String>? = headers[HttpHeaders.Vary]?.split(",")?.map { it.trim() }
 
+fun HttpRequestBuilder.maxAge(): Int? = cacheControl.maxAge
+
 fun HttpRequestBuilder.ifModifiedSince(date: Date) =
         headers.set(HttpHeaders.IfModifiedSince, HTTP_DATE_FORMAT.format(date))
 
-fun HttpRequestBuilder.ifMatch(value: String) = headers.set(HttpHeaders.IfMatch, value)
+fun HttpRequestBuilder.ifNoneMatch(value: String) = headers.set(HttpHeaders.IfNoneMatch, value)
+fun HttpRequestBuilder.maxAge(seconds: Int) = headers.append(HttpHeaders.CacheControl, "max-age:$seconds")
 
 fun HttpResponse.lastModified(): Date? = headers[HttpHeaders.LastModified]?.let { HTTP_DATE_FORMAT.parse(it) }
 fun HttpResponse.etag(): String? = headers[HttpHeaders.ETag]
+fun HttpResponse.expires(): Date? = headers[HttpHeaders.Expires]?.let { HTTP_DATE_FORMAT.parse(it) }

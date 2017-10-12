@@ -39,7 +39,7 @@ fun UrlBuilder.takeFrom(data: URL) {
     scheme = data.protocol
     host = data.host
     path = data.path
-    port = if (scheme == "https") 443 else 80
+    port = data.port.takeIf { it > 0 } ?: if (scheme == "https") 443 else 80
 
     // TODO: parse query parameters
 }

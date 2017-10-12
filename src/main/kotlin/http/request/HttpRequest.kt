@@ -2,6 +2,7 @@ package http.request
 
 import http.utils.*
 import io.ktor.http.HttpMethod
+import io.ktor.util.Attributes
 import java.nio.charset.Charset
 
 
@@ -21,6 +22,8 @@ class HttpRequestBuilder() {
     val headers = HeadersBuilder()
     var payload: Any = Unit
     var charset: Charset? = null
+
+    val flags = Attributes()
 
     val cacheControl: HttpRequestCacheControl get() = headers.computeRequestCacheControl()
 

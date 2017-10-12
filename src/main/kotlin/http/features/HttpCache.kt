@@ -1,21 +1,18 @@
 package http.features
 
-import http.call.HttpClientCall
-import http.call.call
-import http.pipeline.HttpClientScope
-import http.request.HttpRequest
-import http.request.HttpRequestBuilder
-import http.request.HttpRequestPipeline
-import http.response.HttpResponse
-import http.response.HttpResponseBuilder
-import http.response.HttpResponsePipeline
+import http.call.*
+import http.pipeline.*
+import http.request.*
+import http.response.*
 import http.utils.*
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.util.AttributeKey
+import io.ktor.http.*
+import io.ktor.util.*
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 fun Iterable<Boolean>.all(): Boolean = all { it }
+
+private val IGNORE_CACHE = AttributeKey<Boolean>("IgnoreCache")
 
 private data class CacheEntity(
         val invariant: Map<String, Set<String>>,
@@ -26,8 +23,10 @@ private data class CacheEntity(
     }.all()
 }
 
-class HttpCache {
-    private val responseCache = mutableMapOf<Url, CacheEntity>()
+class HttpCache(
+        val maxAge: Int?
+) {
+    private val responseCache = ConcurrentHashMap<Url, CacheEntity>()
 
     private fun load(builder: HttpRequestBuilder): HttpResponse? {
         val now = Date()
@@ -38,17 +37,27 @@ class HttpCache {
     private fun isValid(response: HttpResponse, builder: HttpRequestBuilder): Boolean {
         val now = Date().time
         val requestTime = response.requestTime.time
+        var hasCacheMarker = false
 
         with(response.cacheControl) {
-            maxAge?.let { if (requestTime + it > now) return false }
+            maxAge?.let {
+                if (requestTime + it * 1000 < now) return false
+                hasCacheMarker = true
+            }
             if (mustRevalidate) return false
         }
 
-        with(builder.cacheControl) {
-            maxAge?.let { if (requestTime + it > now) return false }
+        builder.cacheControl.maxAge?.let {
+            if (requestTime + it * 1000 < now) return false
+            hasCacheMarker = true
         }
 
-        return true
+        response.expires()?.let {
+            if (it.time < now) return false
+            hasCacheMarker = true
+        }
+
+        return hasCacheMarker && response.etag() == null && response.lastModified() == null
     }
 
     private suspend fun validate(
@@ -63,8 +72,10 @@ class HttpCache {
 
         if (lastModified == null && etag == null) return null
 
-        etag?.let { request.ifMatch(it) }
+        etag?.let { request.ifNoneMatch(it) }
         lastModified?.let { request.ifModifiedSince(it) }
+
+        request.flags.put(IGNORE_CACHE, true)
 
         val call = scope.call(request)
         return when (call.response.statusCode) {
@@ -101,15 +112,26 @@ class HttpCache {
         responseCache[url] = CacheEntity(invariant, response)
     }
 
-    companion object Feature : HttpClientFeature<Unit, HttpCache> {
+    class Config {
+        var maxAge: Int? = null
+
+        fun build(): HttpCache = HttpCache(maxAge)
+    }
+
+    companion object Feature : HttpClientFeature<Config, HttpCache> {
         override val key: AttributeKey<HttpCache> = AttributeKey("HttpCache")
 
-        override fun prepare(block: Unit.() -> Unit): HttpCache = HttpCache()
+        override fun prepare(block: Config.() -> Unit): HttpCache = Config().apply(block).build()
 
         override fun install(feature: HttpCache, scope: HttpClientScope) {
             scope.requestPipeline.intercept(HttpRequestPipeline.Send) { builder ->
-                if (builder !is HttpRequestBuilder) return@intercept
-                if (builder.method != HttpMethod.Get) return@intercept
+                if (builder !is HttpRequestBuilder || builder.flags.contains(IGNORE_CACHE) || builder.method != HttpMethod.Get) {
+                    return@intercept
+                }
+
+                if (feature.maxAge != null && builder.maxAge() != null) {
+                    builder.maxAge(feature.maxAge)
+                }
 
                 val cache = feature.load(builder) ?: return@intercept
                 if (feature.isValid(cache, builder)) {

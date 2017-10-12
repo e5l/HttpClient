@@ -1,7 +1,7 @@
 package http.pipeline
 
-import http.features.HttpClientFeature
 import http.features.FEATURE_INSTALLED_LIST
+import http.features.HttpClientFeature
 import http.features.HttpIgnoreBody
 import http.features.HttpPlainText
 import io.ktor.util.AttributeKey
@@ -9,7 +9,7 @@ import io.ktor.util.Attributes
 
 private val CLIENT_CONFIG_KEY = AttributeKey<ClientConfig>("ClientConfig")
 
-class ClientConfig {
+class ClientConfig(private val parent: HttpClientScope) {
     private val features = mutableMapOf<AttributeKey<*>, (HttpClientScope) -> Unit>()
     private val customInterceptors = mutableMapOf<String, (HttpClientScope) -> Unit>()
 
@@ -32,7 +32,7 @@ class ClientConfig {
     }
 
     fun build(): HttpClientScope {
-        val scope = HttpCallScope()
+        val scope = HttpCallScope(parent)
         scope.attributes.put(CLIENT_CONFIG_KEY, this)
 
         features.values.forEach { scope.apply(it) }
@@ -41,8 +41,8 @@ class ClientConfig {
         return scope
     }
 
-    fun clone(): ClientConfig {
-        val result = ClientConfig()
+    fun clone(parent: HttpClientScope): ClientConfig {
+        val result = ClientConfig(parent)
         result.features.putAll(features)
         result.customInterceptors.putAll(customInterceptors)
 
@@ -51,8 +51,8 @@ class ClientConfig {
 }
 
 fun HttpClientScope.config(block: ClientConfig.() -> Unit): HttpClientScope {
-    val config = attributes.computeIfAbsent(CLIENT_CONFIG_KEY) { ClientConfig() }
-    return config.clone().apply(block).build()
+    val config = attributes.computeIfAbsent(CLIENT_CONFIG_KEY) { ClientConfig(this) }
+    return config.clone(this).apply(block).build()
 }
 
 fun HttpClientScope.default(features: List<HttpClientFeature<Any, out Any>> = listOf(HttpPlainText, HttpIgnoreBody)) = config {

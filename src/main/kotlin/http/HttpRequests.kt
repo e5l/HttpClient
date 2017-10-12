@@ -15,6 +15,11 @@ suspend inline fun <reified T> HttpClientScope.request(builder: HttpRequestBuild
 suspend inline fun <reified T> HttpClientScope.request(block: HttpRequestBuilder.() -> Unit): T =
         request(HttpRequestBuilder().apply(block))
 
+suspend inline fun <reified T> HttpClientScope.get(builder: HttpRequestBuilder): T {
+    builder.method = HttpMethod.Get
+    return request(builder)
+}
+
 suspend inline fun <reified T> HttpClientScope.get(
         scheme: String = "http", host: String = "localhost", port: Int = 80,
         path: String = "",
